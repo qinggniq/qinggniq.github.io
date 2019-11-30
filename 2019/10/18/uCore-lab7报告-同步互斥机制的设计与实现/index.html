@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang>
+  <head><meta name="generator" content="Hexo 3.8.0"><meta charset="UTF-8">
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="uCore lab7报告 同步互斥机制的设计与实现"><meta name="keywords" content="os, qinggniq's blog"><link rel="alternate" href="/atom.xml" title="qinggniq's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0">
+<link rel="canonical" href="https://qinggniq.com/2019/10/18/uCore-lab7报告-同步互斥机制的设计与实现/">
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css"><link rel="stylesheet" type="text/css" href="/lib/nprogress/nprogress.min.css">
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0">
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+
+    <title>uCore lab7报告 同步互斥机制的设计与实现 - qinggniq's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="mobile-header-logo">
+    <a href="/." class="logo">qinggniq's blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">qinggniq's blog</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">uCore lab7报告 同步互斥机制的设计与实现
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-10-18
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#练习0填写已有实验"><span class="toc-text"> 练习0：填写已有实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内容"><span class="toc-text"> 内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#答案"><span class="toc-text"> 答案</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习1-理解内核级信号量的实现和基于内核级信号量的哲学家就餐问题"><span class="toc-text"> 练习1: 理解内核级信号量的实现和基于内核级信号量的哲学家就餐问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内容-2"><span class="toc-text"> 内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#问答"><span class="toc-text"> 问答</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习2-完成内核级条件变量和基于内核级条件变量的哲学家就餐问题"><span class="toc-text"> 练习2: 完成内核级条件变量和基于内核级条件变量的哲学家就餐问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内容-3"><span class="toc-text"> 内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#答案-2"><span class="toc-text"> 答案</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="练习0填写已有实验"><a class="markdownIt-Anchor" href="#练习0填写已有实验"></a> 练习0：填写已有实验</h2>
+<h3 id="内容"><a class="markdownIt-Anchor" href="#内容"></a> 内容</h3>
+<p>本实验依赖实验1/2/3/4/5/6。请把你做的实验1/2/3/4/5/6的代码填入本实验中代码中有“LAB1”/“LAB2”/“LAB3”/“LAB4”/“LAB5”/“LAB6”的注释相应部分。并确保编译通过。注意：为了能够正确执行lab7的测试应用程序，可能需对已完成的实验1/2/3/4/5/6的代码进行进一步改进。</p>
+<a id="more"></a>
+<h3 id="答案"><a class="markdownIt-Anchor" href="#答案"></a> 答案</h3>
+<ul>
+<li>注意把lab6写的<code>stride_sched.c</code>也拷过去，然后把默认的<strong>RoundRobin</strong>实现给删了；</li>
+<li><code>trap.c</code>中将时钟中断的处理换成<code>run_timer_list()</code>；</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> IRQ_OFFSET + IRQ_TIMER:</span><br><span class="line">+    run_timer_list();</span><br><span class="line">-     sched_class_proc_tick(current);</span><br><span class="line">      <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="练习1-理解内核级信号量的实现和基于内核级信号量的哲学家就餐问题"><a class="markdownIt-Anchor" href="#练习1-理解内核级信号量的实现和基于内核级信号量的哲学家就餐问题"></a> 练习1: 理解内核级信号量的实现和基于内核级信号量的哲学家就餐问题</h2>
+<h3 id="内容-2"><a class="markdownIt-Anchor" href="#内容-2"></a> 内容</h3>
+<p>完成练习0后，建议大家比较一下（可用<code>meld</code>等文件<code>diff</code>比较软件）个人完成的lab6和练习0完成后的刚修改的lab7之间的区别，分析了解lab7采用信号量的执行过程。执行<code>make grade</code>，大部分测试用例应该通过。</p>
+<h3 id="问答"><a class="markdownIt-Anchor" href="#问答"></a> 问答</h3>
+<blockquote>
+<p>请在实验报告中给出内核级信号量的设计描述，并说明其大致执行流程。</p>
+</blockquote>
+<ul>
+<li>主要数据结构</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//信号量结构体</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> value;</span><br><span class="line">    <span class="keyword">wait_queue_t</span> wait_queue;</span><br><span class="line">&#125; <span class="keyword">semaphore_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//等待队列</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="keyword">list_entry_t</span> wait_head;</span><br><span class="line">&#125; <span class="keyword">wait_queue_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//控制信息</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">proc_struct</span> *<span class="title">proc</span>;</span></span><br><span class="line">    <span class="keyword">uint32_t</span> wakeup_flags;</span><br><span class="line">    <span class="keyword">wait_queue_t</span> *wait_queue;</span><br><span class="line">    <span class="keyword">list_entry_t</span> wait_link;</span><br><span class="line">&#125; <span class="keyword">wait_t</span>;</span><br></pre></td></tr></table></figure>
+<p>通过<code>wait_t</code>将等待队列与进程关联。</p>
+<ul>
+<li>主要执行流程
+<ul>
+<li><code>down</code>判断信号量值是否大于0，大于零更新信号量之后直接返回，否则将其加入信号量的等待队列，设置当前进程状态为<strong>SLEEPING</strong>，然后重新调度，当重新执行的时候只可能是信号量可用的时候被唤醒的情况，然后出队返回。</li>
+<li><code>up</code>判断信号量是否大于零，大于零的话说明等待队列里面没有要被唤醒的进程，否则就唤醒队头的那个进程。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>请在实验报告中给出给用户态进程/线程提供信号量机制的设计方案，并比较说明给内核级提供信号量机制的异同。</p>
+</blockquote>
+<ul>
+<li><code>struct semaphore</code>信号量结构</li>
+<li><code>semaphore_init(struct semaphore* sem, size_t val)</code>初始化信号量，直接调用内核的<code>void sem_init(semaphore_t *sem, int value);</code>即可；</li>
+<li><code>P(struct semaphore* sem)</code>尝试获取资源，调用<code>down</code>即可；</li>
+<li><code>V(struct semaphore* sem)</code>释放资源，调用呢<code>up</code>。<br>
+所有的操作都得做成系统调用。</li>
+</ul>
+<h2 id="练习2-完成内核级条件变量和基于内核级条件变量的哲学家就餐问题"><a class="markdownIt-Anchor" href="#练习2-完成内核级条件变量和基于内核级条件变量的哲学家就餐问题"></a> 练习2: 完成内核级条件变量和基于内核级条件变量的哲学家就餐问题</h2>
+<h3 id="内容-3"><a class="markdownIt-Anchor" href="#内容-3"></a> 内容</h3>
+<p>首先掌握管程机制，然后基于信号量实现完成条件变量实现，然后用管程机制实现哲学家就餐问题的解决方案（基于条件变量）。</p>
+<h3 id="答案-2"><a class="markdownIt-Anchor" href="#答案-2"></a> 答案</h3>
+<p>看伪代码写代码。。。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Unlock one of threads waiting on the condition variable.</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">cond_signal</span><span class="params">(<span class="keyword">condvar_t</span> *cvp)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// LAB7 EXERCISE1: YOUR CODE</span></span><br><span class="line">  cprintf(</span><br><span class="line">      <span class="string">"cond_signal begin: cvp %x, cvp-&gt;count %d, cvp-&gt;owner-&gt;next_count %d\n"</span>,</span><br><span class="line">      cvp, cvp-&gt;count, cvp-&gt;owner-&gt;next_count);</span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">   *      cond_signal(cv) &#123;</span></span><br><span class="line"><span class="comment">   *          if(cv.count&gt;0) &#123;</span></span><br><span class="line"><span class="comment">   *             mt.next_count ++;</span></span><br><span class="line"><span class="comment">   *             signal(cv.sem);</span></span><br><span class="line"><span class="comment">   *             wait(mt.next);</span></span><br><span class="line"><span class="comment">   *             mt.next_count--;</span></span><br><span class="line"><span class="comment">   *          &#125;</span></span><br><span class="line"><span class="comment">   *       &#125;</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">if</span> (cvp-&gt;count &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    cvp-&gt;owner-&gt;next_count++;</span><br><span class="line">    up(&amp;cvp-&gt;sem);</span><br><span class="line">    down(&amp;cvp-&gt;owner-&gt;next);</span><br><span class="line">    cvp-&gt;owner-&gt;next_count--;</span><br><span class="line">  &#125;</span><br><span class="line">  cprintf(<span class="string">"cond_signal end: cvp %x, cvp-&gt;count %d, cvp-&gt;owner-&gt;next_count %d\n"</span>,</span><br><span class="line">          cvp, cvp-&gt;count, cvp-&gt;owner-&gt;next_count);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">cond_wait</span><span class="params">(<span class="keyword">condvar_t</span> *cvp)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// LAB7 EXERCISE1: YOUR CODE</span></span><br><span class="line">  cprintf(</span><br><span class="line">      <span class="string">"cond_wait begin:  cvp %x, cvp-&gt;count %d, cvp-&gt;owner-&gt;next_count %d\n"</span>,</span><br><span class="line">      cvp, cvp-&gt;count, cvp-&gt;owner-&gt;next_count);</span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">   *         cv.count ++;</span></span><br><span class="line"><span class="comment">   *         if(mt.next_count&gt;0)</span></span><br><span class="line"><span class="comment">   *            signal(mt.next)</span></span><br><span class="line"><span class="comment">   *         else</span></span><br><span class="line"><span class="comment">   *            signal(mt.mutex);</span></span><br><span class="line"><span class="comment">   *         wait(cv.sem);</span></span><br><span class="line"><span class="comment">   *         cv.count --;</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  cvp-&gt;count++;</span><br><span class="line">  <span class="keyword">if</span> (cvp-&gt;owner-&gt;next_count)</span><br><span class="line">    up(&amp;cvp-&gt;owner-&gt;next);</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    up(&amp;cvp-&gt;owner-&gt;mutex);</span><br><span class="line">  down(&amp;cvp-&gt;sem);</span><br><span class="line">  cvp-&gt;count--;</span><br><span class="line">  cprintf(<span class="string">"cond_wait end:  cvp %x, cvp-&gt;count %d, cvp-&gt;owner-&gt;next_count %d\n"</span>,</span><br><span class="line">          cvp, cvp-&gt;count, cvp-&gt;owner-&gt;next_count);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="https://qinggniq.com">qinggniq</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="https://qinggniq.com/2019/10/18/uCore-lab7报告-同步互斥机制的设计与实现/">https://qinggniq.com/2019/10/18/uCore-lab7报告-同步互斥机制的设计与实现/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/os/">os</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/10/18/uCore-lab8报告-文件系统设计与实现/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">uCore lab8报告 文件系统设计与实现</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/10/10/uCore-lab6报告-调度框架算法设计与实现/">
+        <span class="next-text nav-default">uCore lab6报告 调度框架算法设计与实现</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:livewithblan@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/qinggniq" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">qinggniq</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'https://qinggniq.com/2019/10/18/uCore-lab7报告-同步互斥机制的设计与实现/';
+        this.page.identifier = '2019/10/18/uCore-lab7报告-同步互斥机制的设计与实现/';
+        this.page.title = 'uCore lab7报告 同步互斥机制的设计与实现';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//qinggniq.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/lib/pjax/jquery.pjax.min.js"></script>
+  <script type="text/javascript" src="/lib/nprogress/nprogress.min.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

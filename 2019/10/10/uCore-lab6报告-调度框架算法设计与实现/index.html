@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang>
+  <head><meta name="generator" content="Hexo 3.8.0"><meta charset="UTF-8">
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="uCore lab6报告 调度框架算法设计与实现"><meta name="keywords" content="os, qinggniq's blog"><link rel="alternate" href="/atom.xml" title="qinggniq's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0">
+<link rel="canonical" href="https://qinggniq.com/2019/10/10/uCore-lab6报告-调度框架算法设计与实现/">
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css"><link rel="stylesheet" type="text/css" href="/lib/nprogress/nprogress.min.css">
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0">
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+
+    <title>uCore lab6报告 调度框架算法设计与实现 - qinggniq's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="mobile-header-logo">
+    <a href="/." class="logo">qinggniq's blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">qinggniq's blog</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">uCore lab6报告 调度框架算法设计与实现
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-10-10
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#练习0填写已有实验"><span class="toc-text"> 练习0：填写已有实验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习1-使用-round-robin-调度算法"><span class="toc-text"> 练习1: 使用 Round Robin 调度算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#问答"><span class="toc-text"> 问答</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习2-实现-stride-scheduling-调度算法"><span class="toc-text"> 练习2: 实现 Stride Scheduling 调度算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内容"><span class="toc-text"> 内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#答案"><span class="toc-text"> 答案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#确定max_stride"><span class="toc-text"> 确定MAX_STRIDE</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#看注释写代码"><span class="toc-text"> 看注释写代码</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="练习0填写已有实验"><a class="markdownIt-Anchor" href="#练习0填写已有实验"></a> 练习0：填写已有实验</h2>
+<p>这真的是个坑爹的练习，Lab1-5的内容并不是全部拷贝到一起就可以的，里面还有要求你更新的内容，所以就会一不小心把要更新的注释给合并没了。</p>
+<a id="more"></a>
+<h2 id="练习1-使用-round-robin-调度算法"><a class="markdownIt-Anchor" href="#练习1-使用-round-robin-调度算法"></a> 练习1: 使用 Round Robin 调度算法</h2>
+<p>完成练习0后，建议大家比较一下（可用kdiff3等文件比较软件）个人完成的lab5和练习0完成后的刚修改的lab6之间的区别，分析了解lab6采用RR调度算法后的执行过程。</p>
+<h3 id="问答"><a class="markdownIt-Anchor" href="#问答"></a> 问答</h3>
+<blockquote>
+<p>请理解并分析sched_class中各个函数指针的用法，并结合Round Robin 调度算法描ucore的调度执行过程</p>
+</blockquote>
+<p>正常几个调度点<code>trap(), do_wait(), do_yeild(), do_exit()</code>，然后<code>schedule</code>里面先入队当前的process，让这些就绪进程一起公平竞争，<code>pick_one</code>然后再出队即可。RoundRobin算法就是简单的先进先出队列，不涉及到任何排序。</p>
+<blockquote>
+<p>请在实验报告中简要说明如何设计实现”多级反馈队列调度算法“，给出概要设计，鼓励给出详细设计</p>
+</blockquote>
+<p>给process根据优先级先放到对应队列里面，设置好时间片，然后当前进程时间片用完的话出队，优先级降级，再根据优先级入队，设置时间片。选取下一个进程就是找到一个不是空的队列的队头进程运行即可。</p>
+<h2 id="练习2-实现-stride-scheduling-调度算法"><a class="markdownIt-Anchor" href="#练习2-实现-stride-scheduling-调度算法"></a> 练习2: 实现 Stride Scheduling 调度算法</h2>
+<h3 id="内容"><a class="markdownIt-Anchor" href="#内容"></a> 内容</h3>
+<p>首先需要换掉RR调度器的实现，即用default_sched_stride_c覆盖default_sched.c。然后根据此文件和后续文档对Stride度器的相关描述，完成Stride调度算法的实现。</p>
+<h3 id="答案"><a class="markdownIt-Anchor" href="#答案"></a> 答案</h3>
+<p>Stride Scheduling算法是典型的最小堆的使用场景，所以uCore提供了一个节点结构的最小堆，然后根据<code>stride</code>的大小出队入队即可。完成这个练习首先需要确定<strong>BIG_STRIDE</strong>的值，只有<strong>max_strice - min_stride &lt;= BIG_STRIDE</strong>的时候，即使<code>stride</code>的值溢出32位无符号整形数了依然可以判断大小。其次就是简单的照注释写代码了。。。</p>
+<h4 id="确定max_stride"><a class="markdownIt-Anchor" href="#确定max_stride"></a> 确定<strong>MAX_STRIDE</strong></h4>
+<p>这个比较玄学，首先这个值不可能是个奇奇怪怪的值，我们可以从<strong>INT_MAX,INT_MIN, INT_MAX/2, INT_MIN/2</strong>（32位）这几个比较特殊的值中选取，由于<strong>MAX_STRIDE</strong>这个值大于零，那么看一看<strong>INT_MAX+1, INT_MAX/2+1</strong>还可不可以，emm，最后定为<strong>INT_MAX=2e31-1</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIG_STRIDE 2147483647</span></span><br></pre></td></tr></table></figure>
+<h4 id="看注释写代码"><a class="markdownIt-Anchor" href="#看注释写代码"></a> 看注释写代码</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">stride_init</span><span class="params">(struct run_queue *rq)</span> </span>&#123;</span><br><span class="line">  rq-&gt;lab6_run_pool = <span class="literal">NULL</span>;</span><br><span class="line">  rq-&gt;proc_num = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">stride_enqueue</span><span class="params">(struct run_queue *rq, struct proc_struct *proc)</span> </span>&#123;</span><br><span class="line">  rq-&gt;lab6_run_pool = skew_heap_insert(</span><br><span class="line">      rq-&gt;lab6_run_pool, &amp;(proc-&gt;lab6_run_pool), proc_stride_comp_f);</span><br><span class="line">  <span class="keyword">if</span> (proc-&gt;time_slice == <span class="number">0</span> || proc-&gt;time_slice &gt; rq-&gt;max_time_slice) &#123;</span><br><span class="line">    proc-&gt;time_slice = rq-&gt;max_time_slice;</span><br><span class="line">  &#125;</span><br><span class="line">  proc-&gt;rq = rq;</span><br><span class="line">  rq-&gt;proc_num++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">stride_dequeue</span><span class="params">(struct run_queue *rq, struct proc_struct *proc)</span> </span>&#123;</span><br><span class="line">  rq-&gt;lab6_run_pool = skew_heap_remove(</span><br><span class="line">      rq-&gt;lab6_run_pool, &amp;(proc-&gt;lab6_run_pool), proc_stride_comp_f);</span><br><span class="line">  rq-&gt;proc_num--;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> struct proc_struct *<span class="title">stride_pick_next</span><span class="params">(struct run_queue *rq)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (rq-&gt;lab6_run_pool == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc_struct</span> *<span class="title">p</span> = <span class="title">le2proc</span>(<span class="title">rq</span>-&gt;<span class="title">lab6_run_pool</span>, <span class="title">lab6_run_pool</span>);</span></span><br><span class="line">  <span class="keyword">if</span> (p-&gt;lab6_priority == <span class="number">0</span>)</span><br><span class="line">    p-&gt;lab6_stride += BIG_STRIDE;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    p-&gt;lab6_stride += BIG_STRIDE / p-&gt;lab6_priority;</span><br><span class="line">  <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">stride_proc_tick</span><span class="params">(struct run_queue *rq, struct proc_struct *proc)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (proc-&gt;time_slice &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    proc-&gt;time_slice--;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (proc-&gt;time_slice == <span class="number">0</span>) &#123;</span><br><span class="line">    proc-&gt;need_resched = <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="https://qinggniq.com">qinggniq</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="https://qinggniq.com/2019/10/10/uCore-lab6报告-调度框架算法设计与实现/">https://qinggniq.com/2019/10/10/uCore-lab6报告-调度框架算法设计与实现/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/os/">os</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/10/18/uCore-lab7报告-同步互斥机制的设计与实现/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">uCore lab7报告 同步互斥机制的设计与实现</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/10/10/uCore-lab5报告-用户进程管理/">
+        <span class="next-text nav-default">uCore lab5报告 用户进程管理</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:livewithblan@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/qinggniq" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">qinggniq</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'https://qinggniq.com/2019/10/10/uCore-lab6报告-调度框架算法设计与实现/';
+        this.page.identifier = '2019/10/10/uCore-lab6报告-调度框架算法设计与实现/';
+        this.page.title = 'uCore lab6报告 调度框架算法设计与实现';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//qinggniq.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/lib/pjax/jquery.pjax.min.js"></script>
+  <script type="text/javascript" src="/lib/nprogress/nprogress.min.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

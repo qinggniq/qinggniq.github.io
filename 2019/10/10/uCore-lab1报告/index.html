@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang>
+  <head><meta name="generator" content="Hexo 3.8.0"><meta charset="UTF-8">
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="uCore lab1报告 从机器启动到操作系统运行的过程"><meta name="keywords" content="os, qinggniq's blog"><link rel="alternate" href="/atom.xml" title="qinggniq's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0">
+<link rel="canonical" href="https://qinggniq.com/2019/10/10/uCore-lab1报告/">
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css"><link rel="stylesheet" type="text/css" href="/lib/nprogress/nprogress.min.css">
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0">
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+
+    <title>uCore lab1报告 从机器启动到操作系统运行的过程 - qinggniq's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="mobile-header-logo">
+    <a href="/." class="logo">qinggniq's blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">qinggniq's blog</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">uCore lab1报告 从机器启动到操作系统运行的过程
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-10-10
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#练习一"><span class="toc-text"> 练习一</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#操作系统镜像文件ucoreimg是如何一步一步生成的"><span class="toc-text"> 操作系统镜像文件ucore.img是如何一步一步生成的？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-构建kernel"><span class="toc-text"> 1. 构建kernel</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-构建bootloader"><span class="toc-text"> 2. 构建bootloader</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-制作ucore镜像"><span class="toc-text"> 3. 制作ucore镜像</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一个被系统认为是符合规范的硬盘主引导扇区的特征是什么"><span class="toc-text"> 一个被系统认为是符合规范的硬盘主引导扇区的特征是什么？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习二"><span class="toc-text"> 练习二</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-从cpu加电后执行的第一条指令开始单步跟踪bios的执行"><span class="toc-text"> 1. 从CPU加电后执行的第一条指令开始，单步跟踪BIOS的执行。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-在初始化位置0x7c00设置实地址断点测试断点正常"><span class="toc-text"> 2. 在初始化位置0x7c00设置实地址断点,测试断点正常。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-从0x7c00开始跟踪代码运行将单步跟踪反汇编得到的代码与bootasms和-bootblockasm进行比较"><span class="toc-text"> 3. 从0x7c00开始跟踪代码运行,将单步跟踪反汇编得到的代码与bootasm.S和 bootblock.asm进行比较。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-自己找一个bootloader或内核中的代码位置设置断点并进行测试"><span class="toc-text"> 4. 自己找一个bootloader或内核中的代码位置，设置断点并进行测试。</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习三"><span class="toc-text"> 练习三</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#bios将通过读取硬盘主引导扇区到内存并转跳到对应内存中的位置执行bootloader-请分析bootloader是如何完成从实模式进入保护模式的"><span class="toc-text"> BIOS将通过读取硬盘主引导扇区到内存，并转跳到对应内存中的位置执行bootloader。请分析bootloader是如何完成从实模式进入保护模式的。</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习4分析bootloader加载elf格式的os的过程-要求在报告中写出分析"><span class="toc-text"> 练习4：分析bootloader加载ELF格式的OS的过程。（要求在报告中写出分析）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#bootloader如何读取硬盘扇区的"><span class="toc-text"> bootloader如何读取硬盘扇区的？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bootloader是如何加载elf格式的os"><span class="toc-text"> bootloader是如何加载ELF格式的OS？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习5实现函数调用堆栈跟踪函数-需要编程"><span class="toc-text"> 练习5：实现函数调用堆栈跟踪函数 （需要编程）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习6完善中断初始化和处理-需要编程"><span class="toc-text"> 练习6：完善中断初始化和处理 （需要编程）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-中断描述符表也可简称为保护模式下的中断向量表中一个表项占多少字节其中哪几位代表中断处理代码的入口"><span class="toc-text"> 1. 中断描述符表（也可简称为保护模式下的中断向量表）中一个表项占多少字节？其中哪几位代表中断处理代码的入口？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-请编程完善kerntraptrapc中对中断向量表进行初始化的函数idt_init-在idt_init函数中依次对所有中断入口进行初始化-使用mmuh中的setgate宏填充idt数组内容-每个中断的入口由toolsvectorsc生成使用trapc中声明的vectors数组即可"><span class="toc-text"> 2. 请编程完善kern/trap/trap.c中对中断向量表进行初始化的函数idt_init。在idt_init函数中，依次对所有中断入口进行初始化。使用mmu.h中的SETGATE宏，填充idt数组内容。每个中断的入口由tools/vectors.c生成，使用trap.c中声明的vectors数组即可。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-请编程完善trapc中的中断处理函数trap在对时钟中断进行处理的部分填写trap函数中处理时钟中断的部分使操作系统每遇到100次时钟中断后调用print_ticks子程序向屏幕上打印一行文字100-ticks"><span class="toc-text"> 3. 请编程完善trap.c中的中断处理函数trap，在对时钟中断进行处理的部分填写trap函数中处理时钟中断的部分，使操作系统每遇到100次时钟中断后，调用print_ticks子程序，向屏幕上打印一行文字”100 ticks”。</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#challenge-1"><span class="toc-text"> Challenge 1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#扩展proj4增加syscall功能即增加一用户态函数可执行一特定系统调用获得时钟计数值当内核初始完毕后可从内核态返回到用户态的函数而用户态的函数又通过系统调用得到内核态的服务通过网络查询所需信息可找老师咨询-如果完成且有兴趣做代替考试的实验可找老师商量-需写出详细的设计和分析报告-完成出色的可获得适当加分"><span class="toc-text"> 扩展proj4,增加syscall功能，即增加一用户态函数（可执行一特定系统调用：获得时钟计数值），当内核初始完毕后，可从内核态返回到用户态的函数，而用户态的函数又通过系统调用得到内核态的服务（通过网络查询所需信息，可找老师咨询。如果完成，且有兴趣做代替考试的实验，可找老师商量）。需写出详细的设计和分析报告。完成出色的可获得适当加分。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#咕咕咕"><span class="toc-text"> 咕咕咕</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="练习一"><a class="markdownIt-Anchor" href="#练习一"></a> 练习一</h2>
+<h3 id="操作系统镜像文件ucoreimg是如何一步一步生成的"><a class="markdownIt-Anchor" href="#操作系统镜像文件ucoreimg是如何一步一步生成的"></a> 操作系统镜像文件ucore.img是如何一步一步生成的？</h3>
+<h4 id="1-构建kernel"><a class="markdownIt-Anchor" href="#1-构建kernel"></a> 1. 构建kernel</h4>
+<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">+ cc kern/init/init.c</span><br><span class="line">gcc -Ikern/init/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/init/init.c -o obj/kern/init/init.o</span><br><span class="line">+ cc kern/libs/stdio.c</span><br><span class="line">gcc -Ikern/libs/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/libs/stdio.c -o obj/kern/libs/stdio.o</span><br><span class="line">+ cc kern/libs/readline.c</span><br><span class="line">gcc -Ikern/libs/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/libs/readline.c -o obj/kern/libs/readline.o</span><br><span class="line">+ cc kern/debug/panic.c</span><br><span class="line">gcc -Ikern/debug/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/debug/panic.c -o obj/kern/debug/panic.o</span><br><span class="line">+ cc kern/debug/kdebug.c</span><br><span class="line">gcc -Ikern/debug/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/debug/kdebug.c -o obj/kern/debug/kdebug.o</span><br><span class="line">+ cc kern/debug/kmonitor.c</span><br><span class="line">gcc -Ikern/debug/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/debug/kmonitor.c -o obj/kern/debug/kmonitor.o</span><br><span class="line">+ cc kern/driver/clock.c</span><br><span class="line">gcc -Ikern/driver/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/driver/clock.c -o obj/kern/driver/clock.o</span><br><span class="line">+ cc kern/driver/console.c</span><br><span class="line">gcc -Ikern/driver/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/driver/console.c -o obj/kern/driver/console.o</span><br><span class="line">+ cc kern/driver/picirq.c</span><br><span class="line">gcc -Ikern/driver/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/driver/picirq.c -o obj/kern/driver/picirq.o</span><br><span class="line">+ cc kern/driver/intr.c</span><br><span class="line">gcc -Ikern/driver/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/driver/intr.c -o obj/kern/driver/intr.o</span><br><span class="line">+ cc kern/trap/trap.c</span><br><span class="line">gcc -Ikern/trap/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/trap/trap.c -o obj/kern/trap/trap.o</span><br><span class="line">+ cc kern/trap/vectors.S</span><br><span class="line">gcc -Ikern/trap/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/trap/vectors.S -o obj/kern/trap/vectors.o</span><br><span class="line">+ cc kern/trap/trapentry.S</span><br><span class="line">gcc -Ikern/trap/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/trap/trapentry.S -o obj/kern/trap/trapentry.o</span><br><span class="line">+ cc kern/mm/pmm.c</span><br><span class="line">gcc -Ikern/mm/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Ikern/debug/ -Ikern/driver/ -Ikern/trap/ -Ikern/mm/ -c kern/mm/pmm.c -o obj/kern/mm/pmm.o</span><br><span class="line">+ cc libs/string.c</span><br><span class="line">gcc -Ilibs/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/  -c libs/string.c -o obj/libs/string.o</span><br><span class="line">+ cc libs/printfmt.c</span><br><span class="line">gcc -Ilibs/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/  -c libs/printfmt.c -o obj/libs/printfmt.o</span><br><span class="line">+ ld bin/kernel</span><br><span class="line">ld -m    elf_i386 -nostdlib -T tools/kernel.ld -o bin/kernel  obj/kern/init/init.o obj/kern/libs/stdio.o obj/kern/libs/readline.o obj/kern/debug/panic.o obj/kern/debug/kdebug.o obj/kern/debug/kmonitor.o obj/kern/driver/clock.o obj/kern/driver/console.o obj/kern/driver/picirq.o obj/kern/driver/intr.o obj/kern/trap/trap.o obj/kern/trap/vectors.o obj/kern/trap/trapentry.o obj/kern/mm/pmm.o  obj/libs/string.o obj/libs/printfmt.o</span><br></pre></td></tr></table></figure>
+<h4 id="2-构建bootloader"><a class="markdownIt-Anchor" href="#2-构建bootloader"></a> 2. 构建bootloader</h4>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+ cc boot/bootasm.S</span><br><span class="line">gcc -Iboot/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Os -nostdinc -c boot/bootasm.S -o obj/boot/bootasm.o</span><br><span class="line">+ cc boot/bootmain.c</span><br><span class="line">gcc -Iboot/ -march=i686 -fno-builtin -fno-PIC -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -Ilibs/ -Os -nostdinc -c boot/bootmain.c -o obj/boot/bootmain.o</span><br><span class="line">+ cc tools/sign.c</span><br><span class="line">gcc -Itools/ -g -Wall -O2 -c tools/sign.c -o obj/sign/tools/sign.o</span><br><span class="line">gcc -g -Wall -O2 obj/sign/tools/sign.o -o bin/sign</span><br><span class="line">+ ld bin/bootblock</span><br><span class="line">ld -m    elf_i386 -nostdlib -N -e start -Ttext 0x7C00 obj/boot/bootasm.o obj/boot/bootmain.o -o obj/bootblock.o</span><br></pre></td></tr></table></figure>
+<h4 id="3-制作ucore镜像"><a class="markdownIt-Anchor" href="#3-制作ucore镜像"></a> 3. 制作ucore镜像</h4>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">build 512 bytes boot sector: &apos;bin/bootblock&apos; success!</span><br><span class="line">dd if=/dev/zero of=bin/ucore.img count=10000</span><br><span class="line">dd if=bin/bootblock of=bin/ucore.img conv=notrunc</span><br><span class="line">dd if=bin/kernel of=bin/ucore.img seek=1 conv=notrunc</span><br></pre></td></tr></table></figure>
+<h3 id="一个被系统认为是符合规范的硬盘主引导扇区的特征是什么"><a class="markdownIt-Anchor" href="#一个被系统认为是符合规范的硬盘主引导扇区的特征是什么"></a> 一个被系统认为是符合规范的硬盘主引导扇区的特征是什么？</h3>
+<p>最后两个字节是<strong>0x55</strong>和<strong>0xAA</strong></p>
+<h2 id="练习二"><a class="markdownIt-Anchor" href="#练习二"></a> 练习二</h2>
+<h3 id="1-从cpu加电后执行的第一条指令开始单步跟踪bios的执行"><a class="markdownIt-Anchor" href="#1-从cpu加电后执行的第一条指令开始单步跟踪bios的执行"></a> 1. 从CPU加电后执行的第一条指令开始，单步跟踪BIOS的执行。</h3>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) x/i $pc</span><br></pre></td></tr></table></figure>
+<h3 id="2-在初始化位置0x7c00设置实地址断点测试断点正常"><a class="markdownIt-Anchor" href="#2-在初始化位置0x7c00设置实地址断点测试断点正常"></a> 2. 在初始化位置0x7c00设置实地址断点,测试断点正常。</h3>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) b *0x7c00</span><br></pre></td></tr></table></figure>
+<h3 id="3-从0x7c00开始跟踪代码运行将单步跟踪反汇编得到的代码与bootasms和-bootblockasm进行比较"><a class="markdownIt-Anchor" href="#3-从0x7c00开始跟踪代码运行将单步跟踪反汇编得到的代码与bootasms和-bootblockasm进行比较"></a> 3. 从0x7c00开始跟踪代码运行,将单步跟踪反汇编得到的代码与bootasm.S和 bootblock.asm进行比较。</h3>
+<h3 id="4-自己找一个bootloader或内核中的代码位置设置断点并进行测试"><a class="markdownIt-Anchor" href="#4-自己找一个bootloader或内核中的代码位置设置断点并进行测试"></a> 4. 自己找一个bootloader或内核中的代码位置，设置断点并进行测试。</h3>
+<h2 id="练习三"><a class="markdownIt-Anchor" href="#练习三"></a> 练习三</h2>
+<h3 id="bios将通过读取硬盘主引导扇区到内存并转跳到对应内存中的位置执行bootloader-请分析bootloader是如何完成从实模式进入保护模式的"><a class="markdownIt-Anchor" href="#bios将通过读取硬盘主引导扇区到内存并转跳到对应内存中的位置执行bootloader-请分析bootloader是如何完成从实模式进入保护模式的"></a> BIOS将通过读取硬盘主引导扇区到内存，并转跳到对应内存中的位置执行bootloader。请分析bootloader是如何完成从实模式进入保护模式的。</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">lgdt gdtdesc</span><br><span class="line">    movl %cr0, %eax</span><br><span class="line">    orl $CR0_PE_ON, %eax</span><br><span class="line">    movl %eax, %cr0</span><br><span class="line"></span><br><span class="line">      ljmp $PROT_MODE_CSEG, $protcseg</span><br></pre></td></tr></table></figure>
+<p>通过写键盘控制器开启A20线，指定gdt表位置，将<code>%cr0</code>寄存器最后一位置1，开始保护模式。<code>ljmp $PROT_MODE_CSEG, $protcseg</code>用来改变<code>cs</code>寄存器的值，<strong>PROT_MODE_CSEG</strong>指向代码段描述符位置。</p>
+<h2 id="练习4分析bootloader加载elf格式的os的过程-要求在报告中写出分析"><a class="markdownIt-Anchor" href="#练习4分析bootloader加载elf格式的os的过程-要求在报告中写出分析"></a> 练习4：分析bootloader加载ELF格式的OS的过程。（要求在报告中写出分析）</h2>
+<h3 id="bootloader如何读取硬盘扇区的"><a class="markdownIt-Anchor" href="#bootloader如何读取硬盘扇区的"></a> bootloader如何读取硬盘扇区的？</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">等待磁盘准备好</span><br><span class="line">发出读取扇区的命令</span><br><span class="line">等待磁盘准备好</span><br><span class="line">把磁盘扇区数据读到指定内存</span><br></pre></td></tr></table></figure>
+<h3 id="bootloader是如何加载elf格式的os"><a class="markdownIt-Anchor" href="#bootloader是如何加载elf格式的os"></a> bootloader是如何加载ELF格式的OS？</h3>
+<ol>
+<li>先读kernel的ELFheader</li>
+<li>判断是不是ELFheader</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">elfhdr</span> &#123;</span></span><br><span class="line">  uint magic;  <span class="comment">// must equal ELF_MAGIC</span></span><br><span class="line">  uchar elf[<span class="number">12</span>];</span><br><span class="line">  ushort type;</span><br><span class="line">  ushort machine;</span><br><span class="line">  uint version;</span><br><span class="line">  uint entry;  <span class="comment">// 程序入口的虚拟地址</span></span><br><span class="line">  uint phoff;  <span class="comment">// program header 表的位置偏移</span></span><br><span class="line">  uint shoff;</span><br><span class="line">  uint flags;</span><br><span class="line">  ushort ehsize;</span><br><span class="line">  ushort phentsize;</span><br><span class="line">  ushort phnum; <span class="comment">//program header表中的入口数目</span></span><br><span class="line">  ushort shentsize;</span><br><span class="line">  ushort shnum;</span><br><span class="line">  ushort shstrndx;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>算出程序段偏移和大小</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">proghdr</span> &#123;</span></span><br><span class="line">  uint type;   <span class="comment">// 段类型</span></span><br><span class="line">  uint offset;  <span class="comment">// 段相对文件头的偏移值</span></span><br><span class="line">  uint va;     <span class="comment">// 段的第一个字节将被放到内存中的虚拟地址</span></span><br><span class="line">  uint pa;</span><br><span class="line">  uint filesz;</span><br><span class="line">  uint memsz;  <span class="comment">// 段在内存映像中占用的字节数</span></span><br><span class="line">  uint flags;</span><br><span class="line">  uint align;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>读程序段到内存</li>
+<li>执行程序</li>
+</ol>
+<h2 id="练习5实现函数调用堆栈跟踪函数-需要编程"><a class="markdownIt-Anchor" href="#练习5实现函数调用堆栈跟踪函数-需要编程"></a> 练习5：实现函数调用堆栈跟踪函数 （需要编程）</h2>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">ebp:0x7b28 eip:0x100a63 args:0x10094 0x10094 0x7b58 0x100092</span><br><span class="line">    kern/debug/kdebug.c:308: print_stackframe+22</span><br><span class="line">ebp:0x7b38 eip:0x100d41 args:0x0 0x0 0x0 0x7ba8</span><br><span class="line">    kern/debug/kmonitor.c:126: mon_backtrace+11</span><br><span class="line">ebp:0x7b58 eip:0x100092 args:0x0 0x7b80 0xffff0000 0x7b84</span><br><span class="line">    kern/init/init.c:49: grade_backtrace2+34</span><br><span class="line">ebp:0x7b78 eip:0x1000bc args:0x0 0xffff0000 0x7ba4 0x29</span><br><span class="line">    kern/init/init.c:54: grade_backtrace1+39</span><br><span class="line">ebp:0x7b98 eip:0x1000db args:0x0 0x100000 0xffff0000 0x1d</span><br><span class="line">    kern/init/init.c:59: grade_backtrace0+24</span><br><span class="line">ebp:0x7bb8 eip:0x100101 args:0x1032bc 0x1032a0 0x130a 0x0</span><br><span class="line">    kern/init/init.c:64: grade_backtrace+35</span><br><span class="line">ebp:0x7be8 eip:0x100055 args:0x0 0x0 0x0 0x7c4f</span><br><span class="line">    kern/init/init.c:30: kern_init+85</span><br><span class="line">ebp:0x7bf8 eip:0x7d72 args:0xc031fcfa 0xc08ed88e 0x64e4d08e 0xfa7502a8</span><br><span class="line">    &lt;unknow&gt;: -- 0x00007d72 --</span><br></pre></td></tr></table></figure>
+<p>%ebp中存储的当前的ebp地址，ebp地址中存储的是上一个ebp中的地址，于是根据当前的ebp寄存器的值可以递归查找到最底端的栈帧，而返回地址则是每个函数的%eip的值。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+|  栈底方向        | 高位地址</span><br><span class="line"> |    ...        |</span><br><span class="line"> |    ...        |</span><br><span class="line"> |  参数3        |</span><br><span class="line"> |  参数2        |</span><br><span class="line"> |  参数1        |</span><br><span class="line"> |  返回地址        |</span><br><span class="line"> |  上一层[ebp]    | &lt;-------- [ebp]</span><br><span class="line"> |  局部变量        |  低位地址</span><br></pre></td></tr></table></figure>
+<h2 id="练习6完善中断初始化和处理-需要编程"><a class="markdownIt-Anchor" href="#练习6完善中断初始化和处理-需要编程"></a> 练习6：完善中断初始化和处理 （需要编程）</h2>
+<h3 id="1-中断描述符表也可简称为保护模式下的中断向量表中一个表项占多少字节其中哪几位代表中断处理代码的入口"><a class="markdownIt-Anchor" href="#1-中断描述符表也可简称为保护模式下的中断向量表中一个表项占多少字节其中哪几位代表中断处理代码的入口"></a> 1. 中断描述符表（也可简称为保护模式下的中断向量表）中一个表项占多少字节？其中哪几位代表中断处理代码的入口？</h3>
+<p>8个字节，16到31表示偏移量，48-63表示选择子，选择子到gdt里面获得基址，然后加上偏移量得到服务例程的地址。</p>
+<h3 id="2-请编程完善kerntraptrapc中对中断向量表进行初始化的函数idt_init-在idt_init函数中依次对所有中断入口进行初始化-使用mmuh中的setgate宏填充idt数组内容-每个中断的入口由toolsvectorsc生成使用trapc中声明的vectors数组即可"><a class="markdownIt-Anchor" href="#2-请编程完善kerntraptrapc中对中断向量表进行初始化的函数idt_init-在idt_init函数中依次对所有中断入口进行初始化-使用mmuh中的setgate宏填充idt数组内容-每个中断的入口由toolsvectorsc生成使用trapc中声明的vectors数组即可"></a> 2. 请编程完善kern/trap/trap.c中对中断向量表进行初始化的函数idt_init。在idt_init函数中，依次对所有中断入口进行初始化。使用mmu.h中的SETGATE宏，填充idt数组内容。每个中断的入口由tools/vectors.c生成，使用trap.c中声明的vectors数组即可。</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i &lt;= <span class="number">255</span>; i++) &#123;</span><br><span class="line">        SETGATE(idt[i], <span class="number">0</span>, GD_KTEXT, __vectors[i], K_KERN);</span><br><span class="line">    &#125;</span><br><span class="line">    SETGATE(idt[T_SWITCH_TOU], <span class="number">1</span>, T_SYSCALL, __vectors[T_SWITCH_TOU], K_USER);</span><br><span class="line">    lidt(&amp;idt_pd);</span><br></pre></td></tr></table></figure>
+<p>使用<code>SETGATE</code>填充<strong>idt</strong>表项，255项基本都是中断或异常，需要ring0的权限，只有80系统调用是ring3的权限，然后<code>lidt</code>将idt的地址填充到idtreg寄存器里面。</p>
+<h3 id="3-请编程完善trapc中的中断处理函数trap在对时钟中断进行处理的部分填写trap函数中处理时钟中断的部分使操作系统每遇到100次时钟中断后调用print_ticks子程序向屏幕上打印一行文字100-ticks"><a class="markdownIt-Anchor" href="#3-请编程完善trapc中的中断处理函数trap在对时钟中断进行处理的部分填写trap函数中处理时钟中断的部分使操作系统每遇到100次时钟中断后调用print_ticks子程序向屏幕上打印一行文字100-ticks"></a> 3. 请编程完善trap.c中的中断处理函数trap，在对时钟中断进行处理的部分填写trap函数中处理时钟中断的部分，使操作系统每遇到100次时钟中断后，调用print_ticks子程序，向屏幕上打印一行文字”100 ticks”。</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (++ticks == TICK_NUM) &#123;</span><br><span class="line">           print_ticks();</span><br><span class="line">           ticks = <span class="number">0</span>;</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="challenge-1"><a class="markdownIt-Anchor" href="#challenge-1"></a> Challenge 1</h2>
+<h3 id="扩展proj4增加syscall功能即增加一用户态函数可执行一特定系统调用获得时钟计数值当内核初始完毕后可从内核态返回到用户态的函数而用户态的函数又通过系统调用得到内核态的服务通过网络查询所需信息可找老师咨询-如果完成且有兴趣做代替考试的实验可找老师商量-需写出详细的设计和分析报告-完成出色的可获得适当加分"><a class="markdownIt-Anchor" href="#扩展proj4增加syscall功能即增加一用户态函数可执行一特定系统调用获得时钟计数值当内核初始完毕后可从内核态返回到用户态的函数而用户态的函数又通过系统调用得到内核态的服务通过网络查询所需信息可找老师咨询-如果完成且有兴趣做代替考试的实验可找老师商量-需写出详细的设计和分析报告-完成出色的可获得适当加分"></a> 扩展proj4,增加syscall功能，即增加一用户态函数（可执行一特定系统调用：获得时钟计数值），当内核初始完毕后，可从内核态返回到用户态的函数，而用户态的函数又通过系统调用得到内核态的服务（通过网络查询所需信息，可找老师咨询。如果完成，且有兴趣做代替考试的实验，可找老师商量）。需写出详细的设计和分析报告。完成出色的可获得适当加分。</h3>
+<h3 id="咕咕咕"><a class="markdownIt-Anchor" href="#咕咕咕"></a> 咕咕咕</h3>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="https://qinggniq.com">qinggniq</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="https://qinggniq.com/2019/10/10/uCore-lab1报告/">https://qinggniq.com/2019/10/10/uCore-lab1报告/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/os/">os</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/10/10/uCore-lab2报告-物理内存管理（含challenge）/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">uCore lab2报告 物理内存管理（含challenge）</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/07/06/Codeforces-Round-572-Answer/">
+        <span class="next-text nav-default">Codeforces Round #572 (Div. 2) 题解</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:livewithblan@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/qinggniq" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">qinggniq</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'https://qinggniq.com/2019/10/10/uCore-lab1报告/';
+        this.page.identifier = '2019/10/10/uCore-lab1报告/';
+        this.page.title = 'uCore lab1报告 从机器启动到操作系统运行的过程';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//qinggniq.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/lib/pjax/jquery.pjax.min.js"></script>
+  <script type="text/javascript" src="/lib/nprogress/nprogress.min.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

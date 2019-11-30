@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang>
+  <head><meta name="generator" content="Hexo 3.8.0"><meta charset="UTF-8">
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="DDIA读书笔记——第七章-事务"><meta name="keywords" content="分布式, DDIA, qinggniq's blog"><link rel="alternate" href="/atom.xml" title="qinggniq's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0">
+<link rel="canonical" href="https://qinggniq.com/2019/11/05/DDIA读书笔记——第七章-事务/">
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css"><link rel="stylesheet" type="text/css" href="/lib/nprogress/nprogress.min.css">
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0">
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+
+    <title>DDIA读书笔记——第七章-事务 - qinggniq's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="mobile-header-logo">
+    <a href="/." class="logo">qinggniq's blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">qinggniq's blog</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">DDIA读书笔记——第七章-事务
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-11-05
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#深入理解事务"><span class="toc-text"> 深入理解事务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#acid的含义"><span class="toc-text"> ACID的含义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#单对象和多对象事务操作single-operation-transaction-multi-operation-transaction"><span class="toc-text"> 单对象和多对象事务操作（single-operation transaction &amp; multi-operation transaction）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#弱隔离级别"><span class="toc-text"> 弱隔离级别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#读-提交"><span class="toc-text"> 读-提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#快照级别隔离于可重复读"><span class="toc-text"> 快照级别隔离于可重复读</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#防止更新丢失"><span class="toc-text"> 防止更新丢失</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#写倾斜和幻读"><span class="toc-text"> 写倾斜和幻读</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#串行化"><span class="toc-text"> 串行化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#两阶段加锁"><span class="toc-text"> 两阶段加锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可串行化的快照隔离"><span class="toc-text"> 可串行化的快照隔离</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><p>在一个苛刻的数据存储环境中，可能会出现很多出错的情况。</p>
+<ul>
+<li>数据库软件失效；</li>
+<li>应用程序随时崩溃；</li>
+<li>应用和数据库节点通信失效、数据库之间的通信失效</li>
+<li>多个客户端同时写入，导致数据覆盖；</li>
+<li>客户端可能读到无意义的、部分更新的数据；</li>
+<li>客户端之前由于边界条件竞争引入的各种奇怪问题。</li>
+</ul>
+<a id="more"></a>
+<p>这些问题都是需要解决的，然而完善的容错机制需要大量的工作，要仔细考虑各种情况，并进行完备的测试。</p>
+<p><strong>事务</strong>一直是简化这些问题的首选措施。事务将应用程序的多个读、写操作捆绑在一起成为一个逻辑单元。即一组操作是一个整体，事务提交要么成功（提交），要么失败（中止或回滚）。这样失败之后客户端可以不断重试而不必担心部分失败的情况。</p>
+<p>虽然事务很好，但是它的代价又是什么呢？一个应用需不需要事务由什么来决定呢？</p>
+<h2 id="深入理解事务"><a class="markdownIt-Anchor" href="#深入理解事务"></a> <strong>深入理解事务</strong></h2>
+<h3 id="acid的含义"><a class="markdownIt-Anchor" href="#acid的含义"></a> <strong>ACID</strong>的含义</h3>
+<p>各个数据库对于<strong>ACID</strong>有着不同的含义，我们需要的是搞清楚原子性（A）、一致性（C）、隔离性（I）、持久性（D）的准确定义。</p>
+<p><strong>原子性</strong><br>
+原子性在<strong>多线程编程</strong>和<strong>数据库</strong>中都有这个名词，前者指的是：</p>
+<blockquote>
+<p>如果某个线程正在执行原子操作，那么其他线程无法看到改操作的中间结果。它只能处于操作之前和之后的状态，而不是两者之间的状态。</p>
+</blockquote>
+<p>而数据库中的原子性与并发操作无关，反而是隔离性与并发操作有关。数据库中的原子性描述了客户端发起一个包含多个写操作的请求时可能发生的情况。如果写入操作的过程中发生的意外情况而导致事务没法最终提交的时候，事务会中止，并且那些部分完成的更改也必须被丢弃。</p>
+<p>如果没有原子性保证，那么更新操作中间发生错误的时候需要知道哪些已经失效哪些没有失效，这个过程十分麻烦。原子性的保证让应用程序可以安全的重试。因此数据库中的原子性所定义的特征是：</p>
+<blockquote>
+<p>在出错的时候中止事务，并将部分完成的写入全部丢弃。</p>
+</blockquote>
+<p><strong>一致性</strong><br>
+一致性在不同场景有不同的含义：</p>
+<ul>
+<li>在<strong>数据复制</strong>章节中讨论了副本一致性和异步复制模型时引出了最终一致性问题；</li>
+<li>一致性哈希是某些系统用于动态分区再平衡的方法；</li>
+<li>CAP理论中，一致性用来表示线性化问题；</li>
+<li>ACID中，一致性主要指数据库处于应用程序期待的”预期状态“。</li>
+</ul>
+<p>所以在数据库中，<strong>一致性指对数据有特定的预期状态，任何数据的更改必须满足这些状态约束</strong>。比如在银行系统中，贷款额和借款余额应该保持平衡，这些约束主要由应用层来保证，数据库是很难检测并阻止这些操作的（数据库可以对某些数据类型的数据进行恒等性检查，比如外键或唯一性约束，但是通常主要靠应用程序来定义数据的有效/无效状态，数据库主要用于存储）。</p>
+<p>原子性、隔离性、持久性是数据库自身的属性，而ACID中的一致性更多的是应用层的属性。应用程序可能通过数据库提供的原子性、隔离性来达到一致性，但是一致性本身并不源自于数据库。因此字母 C 不应该属于 ACID。</p>
+<p><strong>隔离性</strong><br>
+大多数数据库允许客户端同时访问数据库。如果访问相同的数据，那么可能会出现问题。</p>
+<p>下图是一个计数器例子，由于竞态条件，最终结果不正确。</p>
+<p><img src="https://raw.githubusercontent.com/qinggniq/Note/master/GO/MIT6.824/imags/DDIA/8-Trasaction/DDIA-%E4%BA%8B%E5%8A%A1-%E8%AE%A1%E6%95%B0%E5%99%A8.png" alt="计数器的bug"></p>
+<p>ACID语义中的隔离性意味着并发执行的多个事务相互隔离，它们不能交叉。经典的数据库教材把隔离性定义为可串行化（Linerable），这意味着可以假装它是数据库上运行的唯一事务。虽然实际上他们可能同时运行，但是数据库提交的时候，其结果和串行执行完全相同。</p>
+<p>但是在实践中很少使用串行化隔离。</p>
+<p><strong>持久化</strong><br>
+数据库的本质是提供一个安全可靠的地方来存储数据而不用担心数据丢失，持久性就是这样的承诺，它保证一旦事务提交成功，即使存在硬件故障或者数据库崩溃，事务所写入的任何数据也不会丢失。</p>
+<p>在单点数据库中，持久性通常意味着数据已经写入非易失性存储了，但在写入的执行过程中通常还涉及到预写日志（WAL）等，这样磁盘数据损坏还可以进行修复。对于支持远程复制的数据库，持久性意味着数据已经被大多数节点成功复制。</p>
+<h3 id="单对象和多对象事务操作single-operation-transaction-multi-operation-transaction"><a class="markdownIt-Anchor" href="#单对象和多对象事务操作single-operation-transaction-multi-operation-transaction"></a> <strong>单对象和多对象事务操作</strong>（single-operation transaction &amp; multi-operation transaction）</h3>
+<p>之前对于原子性和隔离性的定义主要是针对客户端在同一事务中包含多个写操作时提供的保证。这些假定在一个事务中修改多个对象。这种多对象事务的目的通常是为了在多个数据对象之前保持同步。</p>
+<p>多对象事务要求确定知道事务包含了哪些读写操作，在关系型数据库里面客户端和数据库服务器建立 TCP 网络连接，所以对特定的连接，SQL 语句 BEGIN TRANSACTION 和 COMMIT 之间的所有操作都属于同一个事务。</p>
+<p>而许多非关系数据库则不会将这些操作组合在一起。即使他们可能支持多对象 API （例如，键-值存储的<em>multi-put</em> API 可以在一个操作中更新多个键），单并不意味着具有事务语义，例如可能出现某个键更新成功了而其他则发生了失败，最后结果是数据库处于部分更新的状态。</p>
+<p><strong>单对象写入</strong><br>
+原子性和隔离性也适用于单个对象的更新。例如向数据库写入 20KB 的 JSON 文档：</p>
+<ul>
+<li>如果发送了第一个 10KB 后网络连接中断，数据库是否只存储了无法完整解析的 10KB JSON片段呢？</li>
+<li>如果数据库在覆盖磁盘现有数据时发生电源故障，最终是否是新旧值混在一起？</li>
+<li>如果另一个客户端在写入的时候中读取该文档，是否会看到部分更新的文档内容？</li>
+</ul>
+<p>存储引擎必备的就是在单节点中提供原子性和隔离性，比如宕机的时候使用日志恢复来实现原子性，对每个对象使用加锁的方式实现隔离性。</p>
+<p>有些数据库提供了<strong>原子自增</strong>或<strong>Compare-and-set</strong>操作。这些单对象操作可以防止多个客户端并发修改一个对象时的更新丢失问题，但是它们不是通常意义上的事务，（通常意义上的事务指多个操作聚合为逻辑单元）。</p>
+<p><strong>多对象事务的必要性</strong><br>
+涉及分区的时候多对象事务会带来性能的极大损耗。</p>
+<ul>
+<li>关系型数据库里面涉及多表查询的时候需要多对象事务。</li>
+<li>对于文档数据模型，也需要join，所以更新需要更新多个表，还是需要多对象事务。</li>
+<li>对于带二级索引的数据库，每次更改值的时候都需要更新索引。</li>
+</ul>
+<p><strong>处理错误和终止</strong><br>
+事物的一个关键特性是，如果发生了意外，所有操作被中止，之后可以安全重试。支持安全的重试机制才是中止流程的重点，但是重试有下列的问题</p>
+<ul>
+<li>如果事务已经执行成功，但是返回结果丢失，那么重试机制会导致重复执行，这是需要额外的应用级重复数据删除机制（银行系统）；</li>
+<li>如果错误是由于系统操负载所致，重试将会使情况更糟；</li>
+<li>如果出现了永久性的故障，重试没有意义；</li>
+<li>如果在数据库之外，事务会发生其他副作用，比如发邮件，重试就不太合适。可以使用“两阶段提交的方式”；</li>
+<li>如果客户端在重试的过程中发生失败，没有其他人负责重试，那么那些待写入的数据可能因此而丢失。</li>
+</ul>
+<h2 id="弱隔离级别"><a class="markdownIt-Anchor" href="#弱隔离级别"></a> <strong>弱隔离级别</strong></h2>
+<p><strong>事务隔离</strong>主要用来对应用开发人员隐藏各种并发问题。可串行化意味着并行事务的执行结果与串行执行结果一致。</p>
+<p>但是串行化隔离级别带来的性能损失过大，所以一些数据库选择实现<strong>弱隔离级别</strong>。它可能带来难以琢磨的隐患。下面介绍几个实际常用的弱隔离级别，讨论可能发生的竞态条件，可以帮助我们判断自己的应用适合什么隔离级别。</p>
+<h3 id="读-提交"><a class="markdownIt-Anchor" href="#读-提交"></a> <strong>读-提交</strong></h3>
+<p>最基本的事务隔离级别，提供了两个保证：</p>
+<ul>
+<li>读数据库的时候只能看到已经成功提交的数据（防止“脏读”）；</li>
+<li>写数据库的时候只会覆盖已经成功提交的数据（防止“脏写”）；</li>
+</ul>
+<p><strong>防止脏读</strong></p>
+<blockquote>
+<p>如果一个事务可以看到另一个事务没有提交的数据，那么就是<strong>脏读</strong>。</p>
+</blockquote>
+<p>有以下需求的时候，需要防止脏读：</p>
+<ul>
+<li>事务需要更新多个对象，脏读意味着另一个事务可能会看到部分更新，而不是全部更新，这样可能会造成客户的困惑；</li>
+<li>如果事务中止，那么另一个事务可能看到的是之后会被回滚的数据，这样可能造成不可预料的后果。</li>
+</ul>
+<p><strong>防止脏写</strong></p>
+<blockquote>
+<p>如果一个事务的写入可以覆盖另一个事务未提交的写入数据，那么就是<strong>脏写</strong>。</p>
+</blockquote>
+<p>读-提交的隔离级别通过推迟第二个写操作来避免脏写。防止脏写可以避免以下的并发问题：</p>
+<ul>
+<li>如果事务需要更新多个对象，脏写会带来不可预料的后果；</li>
+<li>读-提交隔离不能解决计数器竞争的问题，就是 A 读了数字 N， B 也读了数字 N ，然后各自加一，但是最终写入的却是 N + 1，那个例子确实满足了读-提交保证的特性，但是却产生了非预期的结果。</li>
+</ul>
+<p><strong>读-提交的实现</strong><br>
+数据库一般使用行级锁来防止脏写：当事务想要修改某个对象，它必须获得对象的锁，持有锁到事务提交。</p>
+<p>数据库防止脏读有两种方法：</p>
+<ul>
+<li>和防止脏读一样用一个行级锁，但是对于长时间的写操作，可能会有很多读操作等待。</li>
+<li>维护两个版本的数据，事务提交前，其他读操作读旧值，事务提交后切换为新值。</li>
+</ul>
+<h3 id="快照级别隔离于可重复读"><a class="markdownIt-Anchor" href="#快照级别隔离于可重复读"></a> <strong>快照级别隔离于可重复读</strong></h3>
+<p>在使用读-提交的隔离级别的时候其他场景会导致并发错误，比如在从账号 1 转账到账号 2 的时候 A 可能发现账户 2 的余额减少了而账户 1 的余额没有增加，虽然它们符合读-提交提供的保证，但是出现了非预期状态。</p>
+<p>这种状态叫做<strong>不可重复读取</strong>（nonreplication read）或<strong>读倾斜</strong>（read skew）,如果 A 在这个转账者事务未提交的时候再次读取账户 1 的余额，可能会读取到不同的值，这种现象也叫作<strong>幻读</strong>。这种现象在有些情形下是不可以接受的：</p>
+<ul>
+<li><em>备份场景</em>：备份任务需要备份整个数据库，在备份过程中可以继续执行写操作，所以备份下来的镜像里面可能会同时出现旧版本数据和新版本数据。如果数据库根据这样的数据恢复，那么可能导致永久的数据库不一致。</li>
+<li><em>分析查询与完整性检查场景</em>：有些查询几乎会扫描大半个数据库，如果这些查询在不同时间点观察数据库，可能会获得毫无意义的结果。</li>
+</ul>
+<p><strong>快照隔离级别</strong>是上述问题的解决手段，它保证每个事务只能看到特定时间点的旧数据。</p>
+<p><strong>快照隔离基本的实现</strong><br>
+和实现读-提交的实现方式一样，在写的时候加一个写锁来防止脏写，但是读操作不用加读锁，不会影响其它事务的写操作，而且写操作也不会影响其它事物的读操作。所以快照级别隔离可以在处理写操作的同时执行长时间的读操作。</p>
+<p>为了实现快照基本隔离，数据库采用了一种类似于读-提交中防止脏读的机制。考虑到多个事务可能会在不同时间点查看数据库状态，所以<strong>数据库机制保留了多个对象的不同提交版本</strong>，这种技术也叫作<strong>多版本并发控制</strong>（MVCC）。</p>
+<p><img src="https://raw.githubusercontent.com/qinggniq/Note/master/GO/MIT6.824/imags/DDIA/8-Trasaction/%E5%88%A9%E7%94%A8%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8A%80%E6%9C%AF%E5%AE%9E%E7%8E%B0%E5%BF%AB%E7%85%A7%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB.png" alt="利用多版本技术实现快照隔离级别"><br>
+<strong>一致性快照的可见性原则</strong></p>
+<ol>
+<li>每个事务开始时列出当前进行的其他事务，然后忽略这些事务的部分写入，不管之后这些写入有没有可能被提交；</li>
+<li>所有中止事务所做的修改不可见；</li>
+<li>较晚事务的修改不可见；</li>
+<li>除此之外，其他事务的修改可见。</li>
+</ol>
+<p>也就是说，以下的数据可见：</p>
+<ol>
+<li>事务开始的时候，创建对象的事务完成了提交；</li>
+<li>对象没有被标记为删除，或者被标记了但是没有被提交。</li>
+</ol>
+<p><strong>索引和快照隔离级别</strong><br>
+那么多版本数据库怎么支持索引呢？一种办法是索引直接指向对象的所有版本然后想办法过滤掉当前事务不可见的版本，垃圾回收的时候也要删除旧版本对应的索引条目。</p>
+<p>还有一种实现方式是在B-Tree存储结构的前提下修改的时候不直接修改，而是总是创建一个新的修改版本，拷贝必要内容然后让节点指向父亲节点。</p>
+<h3 id="防止更新丢失"><a class="markdownIt-Anchor" href="#防止更新丢失"></a> <strong>防止更新丢失</strong></h3>
+<p>之前的案例都是考虑只读事务遇到并发写的时候会看到什么，而没有考虑两个写事务并发。</p>
+<p>并发写可能会带来<strong>更新丢失问题</strong>。更新丢失问题一般发生在”读-修改-写回“的场景中，比如：</p>
+<ul>
+<li>之前提到的计数器递增的例子；</li>
+<li>对某个复杂对象的一部分进行修改，比如对JSON文档的内容进行修改；</li>
+<li>两个用户同时编辑wiki页面。</li>
+</ul>
+<p>解决方案：<br>
+<strong>原子写操作</strong><br>
+有些数据库提供了原子写操作，比如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> counters <span class="keyword">SET</span> <span class="keyword">value</span> = <span class="keyword">value</span> + <span class="number">1</span> <span class="keyword">WHERE</span> <span class="keyword">key</span> = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>这条语句在很多数据库都是安全的。如果原子操作可行，那么它一般是最佳的方式。</p>
+<p>原子操作一般使用独占锁的方式实现，其他事务在原子操作提交前不能读写它。还有一种实现方式是把所有的原子操作放到单线程上面执行。</p>
+<p>一些ORM框架可能会产生一些不是“读-修改-写回”的代码，导致不能使用数据库的原子操作，你需要知道这件事情。</p>
+<p><strong>显式加锁</strong><br>
+有些同步写不能使用原子操作，这个时候可以使用显式的行锁来执行，比如<code>FOR UPDATE</code>语句。</p>
+<p><strong>自动检测更新丢失</strong><br>
+上面两种方法都是强制“读-修改-写回”操作序列串行的方式实现。还有一种方法是让操作并发执行，如果事务管理器检测到了更新丢失风险，那么就终止当前事务，回退到“读-修改-写回”的方式。</p>
+<p><strong>原子比较和设置</strong><br>
+只有上次读取的数据没有发生变化才允许更新；如果发生了变化，那么回退到“读-修改-写回”的方式。</p>
+<p><strong>冲突解决和复制</strong><br>
+在数据复制中，涉及多个节点的异步复制，不同节点可能并发修改数据，需要采取措施来防止更新丢失。</p>
+<p>加锁和原子修改都有一个前提——只有一个最新的数据副本。但是对于多主节点和无主节点复制里面，复制一般是异步复制，可能会有多个最新的数据副本。这个时候加锁和原子比较将不再适用（为啥？）。</p>
+<p>解决方法和之前提到的差不多，时间戳、写入合并等方式，注意的是可交换操作比如加法，在不同顺序执行也能得到相同的结果，在多副本的情况下也能工作。</p>
+<h3 id="写倾斜和幻读"><a class="markdownIt-Anchor" href="#写倾斜和幻读"></a> <strong>写倾斜和幻读</strong></h3>
+<p>前面介绍了事务同时写入同一对象的时候可能会发生的问题，也就是<strong>脏写</strong>和<strong>更新丢失</strong>。为了避免这些问题需要借助数据库中的一些内置机制，比如手动加锁和原子操作等。但是并发写不仅仅只会引发这些问题。</p>
+<p>比如医生值班系统，必须有至少一个医生值班，Alice 和 Bob 都想请假，它们同时点开了调班按钮。如下图所示</p>
+<p><img src="https://raw.githubusercontent.com/qinggniq/Note/master/GO/MIT6.824/imags/DDIA/8-Trasaction/%E7%94%B1%E4%BA%8E%E5%86%99%E5%80%BE%E6%96%9C%E5%AF%BC%E8%87%B4%E7%9A%84bug.png" alt="7-8由于写倾斜导致应用程序出现错误的实例"></p>
+<p>数据库正在使用快照隔离，所以他们都会同时读到有两个医生正在值班，自己和另一个人，Alice 更新自己为离开，Bob 也更新自己为离开，两个事务都提交成功，但是这样违背了业务需求。</p>
+<p><strong>定义写倾斜</strong></p>
+<blockquote>
+<p>如果两个事务读取的是相同的一组对象，然后更新一部分：不同的事务可能更新不同的对象，则可能发生<strong>写倾斜</strong>；不同的事务更新同一个对象，则可能发生<strong>脏写</strong>或<strong>更新丢失</strong>。</p>
+</blockquote>
+<p>之前解决防止更新丢失的方式在解决写倾斜的时候有很多限制：</p>
+<ul>
+<li>涉及多个对象，单对象的原子操作无用；</li>
+<li>基于快照级别隔离来实现更新丢失自动检测也有问题：目前所有的数据库实现的快照化隔离级别都不支持检测写倾斜的问题。自动防止写倾斜要求真正的<strong>可串行化隔离</strong>；</li>
+<li>大多数数据库不支持类似于医生值班的多对象类型约束；</li>
+<li>如果不能使用可串行化级别隔离，那么一个折中的选择是对事务依赖的行为显式加锁：</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span> <span class="keyword">TRANSACTION</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> doctors</span><br><span class="line">    <span class="keyword">WHERE</span> on_call = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">AND</span> shift_id = <span class="number">1234</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> doctors</span><br><span class="line">    <span class="keyword">SET</span> on_call = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">WHERE</span> <span class="keyword">name</span> = <span class="string">'Alice'</span></span><br><span class="line">    <span class="keyword">AND</span> shift_id = <span class="number">1234</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+<p><strong>更多写倾斜的例子</strong><br>
+<em>会议室预定系统</em><br>
+要求同一时间一个会议室不能被预定两次，那么预定的时候先要检查有没有已有的预定，没有再去提交预定。然而快照级别隔离无法阻止并发用户预定同一个会议室。</p>
+<p><em>多人游戏</em><br>
+多人玩棋类游戏，锁无法阻止两个玩家将不同的数字移动到一个位置上。</p>
+<p><em>声明一个用户名</em><br>
+两个人同时申请一个用户名，如果按照“读-修改-写回”的方式先检查有没有这个用户名，然后提交新用户名，快照级别隔离无法阻止并发的同一个用户名。可能使用唯一性约束比较简单。</p>
+<p><strong>为什么会发生写倾斜</strong><br>
+写倾斜的例子一般遵循这样的操作模式：</p>
+<ol>
+<li>输入一些匹配条件进行查询；</li>
+<li>根据查询的结果，应用层代码进行接下来的操作；</li>
+<li>如果决定继续执行，那么提交写。</li>
+</ol>
+<p>而第三步提交的写入可能会改变第二步所依据的条件，第一步执行的查询在第三步执行之后可能会产生和最初的结果不一样。</p>
+<blockquote>
+<p>这种在一个事务中的写入改变了另一个事务查询结果的现象称为<strong>幻读</strong>。</p>
+</blockquote>
+<p>快照级别隔离只能避免只读查询时候的幻读，但是之前讨论的读-写事务，不能解决写倾斜问题。</p>
+<p><strong>实体化冲突</strong><br>
+之前说的一种解决方法是对依赖的行为加锁，但是如果问题是查询结果中为空，没有加锁的对象，那么这个方法就不奏效了。</p>
+<p>可以通过人为引入可锁的对象。这种方法称为<strong>实体化冲突</strong>，它把幻读问题转化为针对数据库中一组具有实体行的锁冲突问题。</p>
+<h2 id="串行化"><a class="markdownIt-Anchor" href="#串行化"></a> <strong>串行化</strong></h2>
+<p>之前讨论过很多竞态条件，虽然读-提交和快照隔离级别隔离可以解决防止一部分，但是对于写倾斜和幻读的问题还是无法解决。还有一些问题需要面对：</p>
+<ul>
+<li>隔离级别往往难以理解，而且不同数据库的实现不一致；</li>
+<li>如果检查应用层代码，往往很难判断它们在特定隔离级别是否安全。</li>
+<li>缺乏工具去检测竞争的情况。</li>
+</ul>
+<p>这些问题都可以通过一个方法解决：<strong>采用可串行化隔离</strong>。</p>
+<blockquote>
+<p>可串行化隔离通常被认为是最强的隔离级别。它保证即使事务并行执行，但最终执行的结果与串行执行的结果一致。</p>
+</blockquote>
+<p>实现可串行化隔离往往从下列三个技术中选择一个：</p>
+<ul>
+<li>使事务真正按照串行顺序执行；</li>
+<li>两阶段锁定，最常用的方法；</li>
+<li>乐观并发控制技术，例如可串行化的快照隔离级别。</li>
+</ul>
+<p><strong>实际串行执行</strong><br>
+解决并发的最好方法就是避免并发：在一个线程上顺序执行每个事务。这样直观的方法只有到2007年之后才渐渐被人使用，有两方面的原因：</p>
+<ul>
+<li><em>内存越来越便宜</em>：现在许多应用都可以把所有的数据集放在内存里面，那么事务的执行速度比等待磁盘IO快很多。</li>
+<li><em>OLTP类型的事务通常执行很快</em>：通常情况下执行较长的分析查询往往是只读的，可以在快照隔离基本下并行运行。</li>
+</ul>
+<p>VoltDB、Redis、Datomic使用串行方式执行事务。它避免了锁开销，有时候比并行程序执行更快。</p>
+<p><strong>采用存储过程封装事务</strong><br>
+往往人类交互的时间比事务执行时间长的多得多，那么希望一个事务作为一个整体去执行。单线程串行执行的系统往往不支持交互式的多语句事务。</p>
+<p><strong>存储过程的优缺点</strong></p>
+<ul>
+<li>每个厂商都有自己的存储过程语言，难用；</li>
+<li>调试困难，运行代码难以管理；</li>
+<li>设计失败的存储过程往往带来更大的性能开销，因为数据库往往被多个应用服务器共享。</li>
+</ul>
+<p>所以现在的新的存储过程放弃了PL/SQL，而是使用了现有的通用编程语言，如Redis使用Lua。</p>
+<p><strong>分区</strong><br>
+跨分区的事务比较困难，对于复杂的，比如带有二级索引的数据需要大量的跨区协调，因此不太合适。</p>
+<h3 id="两阶段加锁"><a class="markdownIt-Anchor" href="#两阶段加锁"></a> <strong>两阶段加锁</strong></h3>
+<p>之前提到可以使用加锁的方式防止脏写，两阶段加锁的方式类似，但是锁的强制性更高。</p>
+<ul>
+<li>如果 A 读取了某个对象，B 想要写入该对象，那么 B 得等到 A 提交或中止才能执行写入，确保在 A 执行过程中 B 不会修改对象；</li>
+<li>如果 A 已经修改了对象，而 B 想要读取对象，那么 B 得等到 A 提交或中止了才能读取。所以对于 2PL，不会出现读到旧值的情况，也就是幻读。</li>
+</ul>
+<p>之前的快照隔离级别是读写互不干扰，现在是读取和修改会产生互斥。</p>
+<p><strong>实现两阶段加锁</strong><br>
+MySQL（InnoDB）和SQL Server里面都用两阶段加锁实现了串行化隔离级别。</p>
+<p>数据库的每个对象都有一个读写锁来隔离读写操作，即锁可以处于共享模式或独占模式。</p>
+<ul>
+<li>事务用共享模式获得锁来读取对象。多个事务可以同时获得对象的共享锁，如果一个事务获得了独占锁，那么其他所有事务必须等待；</li>
+<li>事务必须获得独占锁才能修改对象；</li>
+<li>事务可以读取对象后，然后将共享锁升级为独占锁；</li>
+<li>事务获得锁之后一直持有锁知道事务提交。</li>
+</ul>
+<p>这种锁机制可能导致死锁现象的发生。</p>
+<p><strong>2PL 的性能</strong><br>
+性能是两阶段加锁的主要缺点。一部分原因是锁的获取和锁的释放本身的开销，但更重要的是降低了事务的并发性。一旦两个事务试图做任何可能导致竞态条件的事情，那么其中一个必须等待另一个事务的提交。</p>
+<p>在 2PL 中一个事务的提交时间如果不确定的话，那么可能会导致许多事务提交时间的不确定，这样会使系统的其他部分停了下来。而且发生死锁的话，死锁后的重试也会导致性能下降。</p>
+<p><strong>谓词锁</strong><br>
+谓词锁和之前提到的独占/贡共享锁的区别在于，谓词锁加锁的不是特定的对象，而是作用于某些满足搜索条件的所有查询对象。</p>
+<ul>
+<li>如果 A 想读取某些满足匹配条件的对象，它必须以共享模式获得查询条件的谓词锁，如果其他事务占有任何满足查询条件的对象，那么必须等到它们提交了才能执行查询；</li>
+<li>如果 A 想插入、更新、删除任何对象，必须检查所有新值或旧值是否和现有的任何谓词锁匹配。如果某个事务持有这样的谓词锁，那么必须等到它们提交了才能继续。</li>
+</ul>
+<p>谓词锁的特别之处在于谓词锁可以保护那些还不存在，但是可能会马上被写入的对象（幻读）。谓词锁和 2PL 结合使用可以真正实现可串行化。</p>
+<p><strong>索引区间锁</strong><br>
+是谓词锁的简化版，去除了过多的限制。</p>
+<h3 id="可串行化的快照隔离"><a class="markdownIt-Anchor" href="#可串行化的快照隔离"></a> <strong>可串行化的快照隔离</strong></h3>
+<p>前面说的方法都会给性能带来比较大的损失。而2008年提出的<strong>可串行化的快照隔离级别</strong>它既可以提供串行化保证，而且性能相对于快照隔离级别损失很小。</p>
+<p><strong>悲观与乐观的并发控制</strong><br>
+两阶段加锁是一种典型的悲观并发控制，也就是说，如果某些操作可能出错，那么就直接放弃，采用等待的方式直到绝对安全。</p>
+<p>相比之下，可串行化的快照隔离是一种乐观并发控制。如果可能发生潜在冲突，事务会继续执行而不是中止；当事务提交的时候，数据库会检测是否发生了冲突，如果发生了冲突，中止事务并接下来重试。</p>
+<p>乐观并发控制是一个古老的想法，如果冲突很多，则性能不佳，大量的事务必须中止，如果系统已经接近其最大吞吐量，反复重试会使系统性能变得更差。</p>
+<p>乐观并发控制还可以通过可交换的原子操作来减少一些竞争情况。可串行化快照隔离是在快照隔离的基础上的，并在其基础上增加的相关算法检测写入之间的串行化冲突而决定中止哪些事务。</p>
+<p><strong>基于过期的条件做决定</strong><br>
+在之前讨论写倾斜的时候，介绍过这样的使用场景，事务首先查询某些数据，然后根据这些数据决定接下来的行为，但是在进行这个行为的时候可能其他事务已经修改了之前依据的数据。比如医生值班的问题。</p>
+<p>在应用程序执行查询的时候，数据库本身无法预知应用层逻辑如何处理查出来的数据，那么为了安全起见，所有对查询结果的修改都应该使写事务失效。那么数据库如何得知查询结果是否被修改了呢？可以分为一下两种情况：</p>
+<ul>
+<li>读取是否作用于一个（即将）过期的MVCC对象上；</li>
+<li>检查写入是否影响将要完成的读取；</li>
+</ul>
+<p><strong>检测是否读取了过期的MVCC对象</strong><br>
+在快照隔离级别时，事务从MVCC数据库一致性快照读取的时候，会忽略那些在创建快照时尚未提交的事务写入。比如下图，</p>
+<p><img src="https://raw.githubusercontent.com/qinggniq/Note/master/GO/MIT6.824/imags/DDIA/8-Trasaction/%E6%A3%80%E6%B5%8B%E4%BA%8B%E5%8A%A1%E6%98%AF%E5%90%A6%E4%BB%8EMVCC%E5%BF%AB%E7%85%A7%E4%B8%AD%E8%AF%BB%E5%8F%96%E4%BA%86%E6%97%A7%E5%80%BC.png" alt="7-10检测事务是否从MVCC快照中读取了旧值"></p>
+<p>事务 42 未提交，所以Alice查询的 <code>on_call</code> 的值是 <code>true</code> ，当事务 43 提交的时候，42 已经完成了提交，意思是之前快照读取时忽略的写入已经生效，并且直接导致事务 43 做决定的前提已经不再成立。</p>
+<p>为了防止这种异常，数据库需要追踪那么由于 MVCC 可见性规则而被忽略的写操作，当事务提交的时候数据库会检查是否存在一些当初被忽略的写操作是否已经完成了提交，如果是则中止事务。</p>
+<p><strong>检测写是否影响了之前的读</strong><br>
+第二种情况是，在一个事务读取了数据之后，另一个事务修改了数据，如下图：</p>
+<p><img src="https://raw.githubusercontent.com/qinggniq/Note/master/GO/MIT6.824/imags/DDIA/8-Trasaction/%E6%A3%80%E6%B5%8B%E4%BA%8B%E5%8A%A1%E6%98%AF%E5%90%A6%E4%BF%AE%E6%94%B9%E4%BA%86%E5%8F%A6%E4%B8%80%E4%B8%AA%E4%BA%8B%E5%8A%A1%E7%9A%84%E6%9F%A5%E8%AF%A2%E7%BB%93%E6%9E%9C.png" alt="7-11在可串行化的快照隔离中，检测事务是否修改了另一个事务的查询结果">)</p>
+<p>在“两阶段加锁”中，有<strong>索引区间锁</strong>它可以锁定与某个查询条件匹配的所有行，这里使用了相似的技术，区别在于：SSI锁不会阻塞其他事务。</p>
+<p>在上图中，事务 42 和事务 43 都在查询轮班 1234 期间的值班医生。如果在 <code>shift_id</code> 上建立了索引，数据库可以根据索引条目 1234 来记录事务 42 和 43 都查询了相同的结果。如果没有索引，那么可以在表级别跟踪这些信息。</p>
+<p>当另一个事务尝试修改的时候，它会先检查索引，确认是否有其他事务之前读取过它。过程类似于获取写锁，但是这个操作不会影响读操作，而是在读事务提交的时候通知它们：所读到的数据现在已经发生了变化。</p>
+<p><strong>可串行化快照隔离的性能</strong><br>
+一个考虑的点是跟踪事务读写的粒度，细的话那么开销可能很大，粗的话可能会扩大事务的范围。</p>
+<p>与<strong>两阶段加锁</strong>相比，SSI最大的有点就是事务不需要等待其他事务的锁。读写不会互相影响，这样使查询的延迟更稳定、可预测。特别是在执行只读查询不需要任何的锁，对读密集的负载更有吸引力。</p>
+<p>和<strong>串行执行</strong>相比，SSI突破了单个CPU的限制。事务即使在多个分区上读写数据也能保证串行化隔离。</p>
+<p><strong>事务中止比例</strong>显著影响SSI的性能表现，如果一个运行时间很长的事务，读写了大量数据，那么产生冲突的可能性就很大，所以SSI要求事务尽可能简短。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="https://qinggniq.com">qinggniq</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="https://qinggniq.com/2019/11/05/DDIA读书笔记——第七章-事务/">https://qinggniq.com/2019/11/05/DDIA读书笔记——第七章-事务/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/分布式/">分布式</a>
+            <a href="/tags/DDIA/">DDIA</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/11/11/DDIA读书笔记——第八章-分布式系统的挑战/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">DDIA读书笔记——第八章-分布式系统的挑战</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/11/02/19-10月结/">
+        <span class="next-text nav-default">19-10月结</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:livewithblan@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/qinggniq" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">qinggniq</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'https://qinggniq.com/2019/11/05/DDIA读书笔记——第七章-事务/';
+        this.page.identifier = '2019/11/05/DDIA读书笔记——第七章-事务/';
+        this.page.title = 'DDIA读书笔记——第七章-事务';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//qinggniq.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/lib/pjax/jquery.pjax.min.js"></script>
+  <script type="text/javascript" src="/lib/nprogress/nprogress.min.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

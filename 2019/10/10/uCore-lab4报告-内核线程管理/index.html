@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang>
+  <head><meta name="generator" content="Hexo 3.8.0"><meta charset="UTF-8">
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="uCore lab4报告 内核线程管理"><meta name="keywords" content="os, qinggniq's blog"><link rel="alternate" href="/atom.xml" title="qinggniq's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0">
+<link rel="canonical" href="https://qinggniq.com/2019/10/10/uCore-lab4报告-内核线程管理/">
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css"><link rel="stylesheet" type="text/css" href="/lib/nprogress/nprogress.min.css">
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0">
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+
+    <title>uCore lab4报告 内核线程管理 - qinggniq's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="mobile-header-logo">
+    <a href="/." class="logo">qinggniq's blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">qinggniq's blog</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">uCore lab4报告 内核线程管理
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-10-10
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#练习1分配并初始化一个进程控制块需要编码"><span class="toc-text"> 练习1：分配并初始化一个进程控制块（需要编码）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内容"><span class="toc-text"> 内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#答案"><span class="toc-text"> 答案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#问答"><span class="toc-text"> 问答</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习2为新创建的内核线程分配资源需要编码"><span class="toc-text"> 练习2：为新创建的内核线程分配资源（需要编码）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内容-2"><span class="toc-text"> 内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#答案-2"><span class="toc-text"> 答案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#问答-2"><span class="toc-text"> 问答</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习3阅读代码理解-proc_run-函数和它调用的函数如何完成进程切换的"><span class="toc-text"> 练习3：阅读代码，理解 proc_run 函数和它调用的函数如何完成进程切换的。</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#问答-3"><span class="toc-text"> 问答</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="练习1分配并初始化一个进程控制块需要编码"><a class="markdownIt-Anchor" href="#练习1分配并初始化一个进程控制块需要编码"></a> 练习1：分配并初始化一个进程控制块（需要编码）</h2>
+<h3 id="内容"><a class="markdownIt-Anchor" href="#内容"></a> 内容</h3>
+<p><code>alloc_proc</code>函数（位于<code>kern/process/proc.c</code>中）负责分配并返回一个新的<code>struct proc_struct</code>结构，用于存储新建立的内核线程的管理信息。ucore需要对这个结构进行最基本的初始化，你需要完成这个初始化过程。</p>
+<a id="more"></a>
+<h3 id="答案"><a class="markdownIt-Anchor" href="#答案"></a> 答案</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">proc_struct</span> &#123;</span></span><br><span class="line">  <span class="keyword">enum</span> proc_state state;  <span class="comment">// Process state</span></span><br><span class="line">  <span class="keyword">int</span> pid;                <span class="comment">// Process ID</span></span><br><span class="line">  <span class="keyword">int</span> runs;               <span class="comment">// the running times of Proces</span></span><br><span class="line">  <span class="keyword">uintptr_t</span> kstack;       <span class="comment">// Process kernel stack</span></span><br><span class="line">  <span class="keyword">volatile</span> <span class="keyword">bool</span></span><br><span class="line">  need_resched;  <span class="comment">// bool value: need to be rescheduled to release CPU?</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc_struct</span> *<span class="title">parent</span>;</span>  <span class="comment">// the parent process</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">mm_struct</span> *<span class="title">mm</span>;</span>        <span class="comment">// Process's memory management field</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">context</span> <span class="title">context</span>;</span>      <span class="comment">// Switch here to run process</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">trapframe</span> *<span class="title">tf</span>;</span>        <span class="comment">// Trap frame for current interrupt</span></span><br><span class="line">  <span class="keyword">uintptr_t</span> cr3;   <span class="comment">// CR3 register: the base addr of Page Directroy Table(PDT)</span></span><br><span class="line">  <span class="keyword">uint32_t</span> flags;  <span class="comment">// Process flag</span></span><br><span class="line">  <span class="keyword">char</span> name[PROC_NAME_LEN + <span class="number">1</span>];  <span class="comment">// Process name</span></span><br><span class="line">  <span class="keyword">list_entry_t</span> list_link;        <span class="comment">// Process link list</span></span><br><span class="line">  <span class="keyword">list_entry_t</span> hash_link;        <span class="comment">// Process hash list</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>就是需要你去初始化<strong>PCB</strong>里面的内容，虽然注释上是让初始化<code>struct proc_struct</code>结构里面所有的字段，但是根据<code>proc_init</code>的内容我们可以发现：</p>
+<ul>
+<li><code>pid</code>，<code>kstack</code>， <code>context</code>，<code>tf</code>，<code>mm</code>，<code>list_link</code>，<code>hash_link</code>在<code>do_fork()</code>时确定；</li>
+<li><code>name</code>在<code>proc_init()</code>中确定。<br>
+所以只需要简单设置一下其他结构的初始值即可。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> struct proc_struct *<span class="title">alloc_proc</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc_struct</span> *<span class="title">proc</span> = <span class="title">kmalloc</span>(<span class="title">sizeof</span>(<span class="title">struct</span> <span class="title">proc_struct</span>));</span></span><br><span class="line">  <span class="keyword">if</span> (proc != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="comment">// LAB4:EXERCISE1 YOUR CODE</span></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * below fields in proc_struct need to be initialized</span></span><br><span class="line"><span class="comment">     *       enum proc_state state;                      // Process state</span></span><br><span class="line"><span class="comment">     *       int pid;                                    // Process ID</span></span><br><span class="line"><span class="comment">     *       int runs;                                   // the running times of</span></span><br><span class="line"><span class="comment">     * Proces uintptr_t kstack;                           // Process kernel</span></span><br><span class="line"><span class="comment">     * stack volatile bool need_resched;                 // bool value: need to</span></span><br><span class="line"><span class="comment">     * be rescheduled to release CPU?</span></span><br><span class="line"><span class="comment">     * struct proc_struct *parent; // the parent</span></span><br><span class="line"><span class="comment">     * process struct mm_struct *mm;                       // Process's memory</span></span><br><span class="line"><span class="comment">     * management field struct context context;                     // Switch</span></span><br><span class="line"><span class="comment">     * here to run process struct trapframe *tf;                       // Trap</span></span><br><span class="line"><span class="comment">     * frame for current interrupt uintptr_t cr3; // CR3 register: the base addr</span></span><br><span class="line"><span class="comment">     * of Page Directroy Table(PDT) uint32_t flags; // Process flag char</span></span><br><span class="line"><span class="comment">     * name[PROC_NAME_LEN + 1];               // Process name</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="built_in">memset</span>(proc, <span class="number">0</span>, <span class="keyword">sizeof</span>(struct proc_struct));</span><br><span class="line">    proc-&gt;state = PROC_UNINIT;</span><br><span class="line">    proc-&gt;pid = <span class="number">-1</span>;</span><br><span class="line">    proc-&gt;runs = <span class="number">0</span>;</span><br><span class="line">    proc-&gt;need_resched = <span class="number">0</span>;</span><br><span class="line">    proc-&gt;parent = current;</span><br><span class="line">    proc-&gt;mm = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    proc-&gt;cr3 = boot_cr3;</span><br><span class="line">    proc-&gt;flags = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> proc;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="问答"><a class="markdownIt-Anchor" href="#问答"></a> 问答</h3>
+<blockquote>
+<p>请说明<code>proc_struct</code>中<code>struct context context</code>和<code>struct trapframe *tf</code>成员变量含义和在本实验中的作用是啥？</p>
+</blockquote>
+<ul>
+<li><code>context</code>用于上下文切换，线程切换的时候<code>context</code>用来存储线程的执行状态也就是<code>eip esp ebx ecx edx esi edi ebp</code>这一堆的寄存器的值。</li>
+<li><code>tf</code>是实验一里面的用来存储中断栈的结构，当线程执行的时候发生了中断，实验一中断发生的时候中断信息（如<strong>ERROR_CODE, EIP, CS, 一些寄存器信息</strong>）是直接保存在栈上的，但是现在是保存在<code>proc-&gt;tf</code>结构体里面。</li>
+</ul>
+<h2 id="练习2为新创建的内核线程分配资源需要编码"><a class="markdownIt-Anchor" href="#练习2为新创建的内核线程分配资源需要编码"></a> 练习2：为新创建的内核线程分配资源（需要编码）</h2>
+<h3 id="内容-2"><a class="markdownIt-Anchor" href="#内容-2"></a> 内容</h3>
+<p>创建一个内核线程需要分配和设置好很多资源。kernel_thread函数通过调用do_fork函数完成具体内核线程的创建工作</p>
+<h3 id="答案-2"><a class="markdownIt-Anchor" href="#答案-2"></a> 答案</h3>
+<p>照着注释和实验书上的要点写就好了，比较坑的是有关全局数据的处理需要禁止中断。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* do_fork -     parent process for a new child process</span></span><br><span class="line"><span class="comment"> * @clone_flags: used to guide how to clone the child process</span></span><br><span class="line"><span class="comment"> * @stack:       the parent's user stack pointer. if stack==0, It means to fork</span></span><br><span class="line"><span class="comment"> * a kernel thread.</span></span><br><span class="line"><span class="comment"> * @tf:          the trapframe info, which will be copied to child process's</span></span><br><span class="line"><span class="comment"> * proc-&gt;tf</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">do_fork</span><span class="params">(<span class="keyword">uint32_t</span> clone_flags, <span class="keyword">uintptr_t</span> <span class="built_in">stack</span>, struct trapframe *tf)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> ret = -E_NO_FREE_PROC;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc_struct</span> *<span class="title">proc</span>;</span></span><br><span class="line">  <span class="keyword">if</span> (nr_process &gt;= MAX_PROCESS) &#123;</span><br><span class="line">    <span class="keyword">goto</span> fork_out;</span><br><span class="line">  &#125;</span><br><span class="line">  ret = -E_NO_MEM;</span><br><span class="line">  <span class="comment">// LAB4:EXERCISE2 YOUR CODE</span></span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">   * Some Useful MACROs, Functions and DEFINEs, you can use them in below</span></span><br><span class="line"><span class="comment">   * implementation. MACROs or Functions: alloc_proc:   create a proc struct and</span></span><br><span class="line"><span class="comment">   * init fields (lab4:exercise1) setup_kstack: alloc pages with size KSTACKPAGE</span></span><br><span class="line"><span class="comment">   * as process kernel stack copy_mm:      process "proc" duplicate OR share</span></span><br><span class="line"><span class="comment">   * process "current"'s mm according clone_flags if clone_flags &amp; CLONE_VM,</span></span><br><span class="line"><span class="comment">   * then "share" ; else "duplicate" copy_thread:  setup the trapframe on the</span></span><br><span class="line"><span class="comment">   * process's kernel stack top and setup the kernel entry point and stack of</span></span><br><span class="line"><span class="comment">   * process hash_proc:    add proc into proc hash_list get_pid:      alloc a</span></span><br><span class="line"><span class="comment">   * unique pid for process wakeup_proc:  set proc-&gt;state = PROC_RUNNABLE</span></span><br><span class="line"><span class="comment">   * VARIABLES:</span></span><br><span class="line"><span class="comment">   *   proc_list:    the process set's list</span></span><br><span class="line"><span class="comment">   *   nr_process:   the number of process set</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">//    1. call alloc_proc to allocate a proc_struct</span></span><br><span class="line">  <span class="comment">//    2. call setup_kstack to allocate a kernel stack for child process</span></span><br><span class="line">  <span class="comment">//    3. call copy_mm to dup OR share mm according clone_flag</span></span><br><span class="line">  <span class="comment">//    4. call copy_thread to setup tf &amp; context in proc_struct</span></span><br><span class="line">  <span class="comment">//    5. insert proc_struct into hash_list &amp;&amp; proc_list</span></span><br><span class="line">  <span class="comment">//    6. call wakeup_proc to make the new child process RUNNABLE</span></span><br><span class="line">  <span class="comment">//    7. set ret vaule using child proc's pid</span></span><br><span class="line">  <span class="keyword">if</span> ((proc = alloc_proc()) == <span class="literal">NULL</span>) <span class="keyword">goto</span> fork_out;</span><br><span class="line">  <span class="keyword">if</span> (setup_kstack(proc) != <span class="number">0</span>) <span class="keyword">goto</span> bad_fork_cleanup_proc;</span><br><span class="line">  <span class="keyword">if</span> (copy_mm(clone_flags, proc) != <span class="number">0</span>) <span class="keyword">goto</span> bad_fork_cleanup_kstack;</span><br><span class="line">  copy_thread(proc, <span class="built_in">stack</span>, tf);</span><br><span class="line">  cprintf(<span class="string">"up ok !\n"</span>);</span><br><span class="line">  <span class="keyword">bool</span> intr_flag;</span><br><span class="line">  local_intr_save(intr_flag);</span><br><span class="line">  &#123;</span><br><span class="line">    list_add(&amp;proc_list, &amp;proc-&gt;list_link);</span><br><span class="line">    proc-&gt;pid = get_pid();</span><br><span class="line">    hash_proc(proc);</span><br><span class="line">    nr_process++;</span><br><span class="line">  &#125;</span><br><span class="line">  local_intr_restore(intr_flag);</span><br><span class="line">  cprintf(<span class="string">"list add ok\n"</span>);</span><br><span class="line">  wakeup_proc(proc);</span><br><span class="line"></span><br><span class="line">  ret = proc-&gt;pid;</span><br><span class="line">fork_out:</span><br><span class="line">  <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">bad_fork_cleanup_kstack:</span><br><span class="line">  put_kstack(proc);</span><br><span class="line">bad_fork_cleanup_proc:</span><br><span class="line">  kfree(proc);</span><br><span class="line">  <span class="keyword">goto</span> fork_out;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="问答-2"><a class="markdownIt-Anchor" href="#问答-2"></a> 问答</h3>
+<blockquote>
+<p>请说明ucore是否做到给每个新fork的线程一个唯一的id？请说明你的分析和理由。</p>
+</blockquote>
+<p>可以，根据<code>if (proc-&gt;pid == last_pid)</code>这条判断语句和之后的<code>++last_pid</code>可知，一旦循环时出现<code>proc-&gt;pid == last_pid</code>的情况就会立刻自增，不会构造出重复的id。</p>
+<h2 id="练习3阅读代码理解-proc_run-函数和它调用的函数如何完成进程切换的"><a class="markdownIt-Anchor" href="#练习3阅读代码理解-proc_run-函数和它调用的函数如何完成进程切换的"></a> 练习3：阅读代码，理解 proc_run 函数和它调用的函数如何完成进程切换的。</h2>
+<h3 id="问答-3"><a class="markdownIt-Anchor" href="#问答-3"></a> 问答</h3>
+<blockquote>
+<p>在本实验的执行过程中，创建且运行了几个内核线程？</p>
+</blockquote>
+<p>两个，一个<code>idleproc</code>，一个<code>initproc</code>。</p>
+<blockquote>
+<p>语句local_intr_save(intr_flag);…local_intr_restore(intr_flag);在这里有何作用?</p>
+</blockquote>
+<p>禁止中断，至于为什么，中断会破坏当前的执行吗？</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="https://qinggniq.com">qinggniq</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="https://qinggniq.com/2019/10/10/uCore-lab4报告-内核线程管理/">https://qinggniq.com/2019/10/10/uCore-lab4报告-内核线程管理/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/os/">os</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/10/10/uCore-lab5报告-用户进程管理/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">uCore lab5报告 用户进程管理</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/10/10/uCore-lab3报告-虚拟内存管理/">
+        <span class="next-text nav-default">uCore lab3报告 虚拟内存管理</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:livewithblan@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/qinggniq" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">qinggniq</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'https://qinggniq.com/2019/10/10/uCore-lab4报告-内核线程管理/';
+        this.page.identifier = '2019/10/10/uCore-lab4报告-内核线程管理/';
+        this.page.title = 'uCore lab4报告 内核线程管理';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//qinggniq.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/lib/pjax/jquery.pjax.min.js"></script>
+  <script type="text/javascript" src="/lib/nprogress/nprogress.min.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

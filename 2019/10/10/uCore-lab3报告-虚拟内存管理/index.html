@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang>
+  <head><meta name="generator" content="Hexo 3.8.0"><meta charset="UTF-8">
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="uCore lab3报告 虚拟内存管理"><meta name="keywords" content="os, qinggniq's blog"><link rel="alternate" href="/atom.xml" title="qinggniq's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0">
+<link rel="canonical" href="https://qinggniq.com/2019/10/10/uCore-lab3报告-虚拟内存管理/">
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css"><link rel="stylesheet" type="text/css" href="/lib/nprogress/nprogress.min.css">
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0">
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+
+    <title>uCore lab3报告 虚拟内存管理 - qinggniq's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="mobile-header-logo">
+    <a href="/." class="logo">qinggniq's blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">qinggniq's blog</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">uCore lab3报告 虚拟内存管理
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-10-10
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text"> 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习0-填写已有实验"><span class="toc-text"> 练习0 填写已有实验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内容"><span class="toc-text"> 内容</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#答案"><span class="toc-text"> 答案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习1-给未被映射的地址映射上物理页需要编程"><span class="toc-text"> 练习1 给未被映射的地址映射上物理页（需要编程）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内容-2"><span class="toc-text"> 内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#答案-2"><span class="toc-text"> 答案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#问答"><span class="toc-text"> 问答</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习2补充完成基于fifo的页面替换算法需要编程"><span class="toc-text"> 练习2：补充完成基于FIFO的页面替换算法（需要编程）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内容-3"><span class="toc-text"> 内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#答案-3"><span class="toc-text"> 答案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#问答-2"><span class="toc-text"> 问答</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#challenge-1实现识别dirty-bit的-extended-clock页替换算法需要编程"><span class="toc-text"> Challenge 1：实现识别dirty bit的 extended clock页替换算法（需要编程）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#问答-3"><span class="toc-text"> 问答</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h2>
+<p>相比于<strong>Lab1</strong>、<strong>Lab2</strong>而言，<strong>Lab3</strong>确实简单许多，只是在<strong>Lab2</strong>的基础上增加了<code>mm_area, vma_area</code>数据结构和页替换机制，然而硬件方面的并不需要我们去理解，几个练习看注释也能写出来。</p>
+<a id="more"></a>
+<h2 id="练习0-填写已有实验"><a class="markdownIt-Anchor" href="#练习0-填写已有实验"></a> 练习0 填写已有实验</h2>
+<h2 id="内容"><a class="markdownIt-Anchor" href="#内容"></a> 内容</h2>
+<p>本实验依赖实验1/2。请把你做的实验1/2的代码填入本实验中代码中有“LAB1”,“LAB2”的注释相应部分。</p>
+<h2 id="答案"><a class="markdownIt-Anchor" href="#答案"></a> 答案</h2>
+<p><code>meld lab2/ lab3/</code>转移即可</p>
+<h2 id="练习1-给未被映射的地址映射上物理页需要编程"><a class="markdownIt-Anchor" href="#练习1-给未被映射的地址映射上物理页需要编程"></a> 练习1 给未被映射的地址映射上物理页（需要编程）</h2>
+<h3 id="内容-2"><a class="markdownIt-Anchor" href="#内容-2"></a> 内容</h3>
+<p>完成do_pgfault（mm/vmm.c）函数，给未被映射的地址映射上物理页。</p>
+<h3 id="答案-2"><a class="markdownIt-Anchor" href="#答案-2"></a> 答案</h3>
+<p>要完成实验需要理解<code>struct Page</code>新增的两个熟悉：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Page</span> &#123;</span></span><br><span class="line">      <span class="keyword">int</span> ref;                        <span class="comment">// page frame's reference counter</span></span><br><span class="line">      <span class="keyword">uint32_t</span> flags;                 <span class="comment">// array of flags that describe the status of the page frame</span></span><br><span class="line">      <span class="keyword">unsigned</span> <span class="keyword">int</span> property;          <span class="comment">// the num of free block, used in first fit pm manager</span></span><br><span class="line">      <span class="keyword">list_entry_t</span> page_link;         <span class="comment">// free list link</span></span><br><span class="line"> +   <span class="keyword">list_entry_t</span> pra_page_link;     <span class="comment">// used for pra (page replace algorithm)</span></span><br><span class="line"> +   <span class="keyword">uintptr_t</span> pra_vaddr;            <span class="comment">// used for pra (page replace algorithm)</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>pra_page_link</code>是页替换算法用于组织物理页的链表结构，<code>pra_vaddr</code>表明这个物理页对应哪个虚拟地址。<br>
+<strong>页异常</strong>主要由三个原因导致：</p>
+<ol>
+<li><strong>缺页</strong>：即虚拟地址对应的物理地址不存在。</li>
+<li><strong>读写权限异常</strong>：如写只读页。</li>
+<li><strong>访问权限异常</strong>：如用户访问内核区域。</li>
+</ol>
+<p>下面两个情况简单返回错误即可，第一个情况根据虚拟地址是否映射到物理地址分为两种情况，还没有映射到物理地址的话就分配一个<code>Page</code>然后插入即可了；已经分配了页的虚拟地址然而物理页的内容被别的虚拟地址替换下来了，说明之前有可能通过这个虚拟地址写过这个页，然后换入到了磁盘中，所以需要再分配一个物理页然后从磁盘读入之前的数据到这个物理页。要注意的是要使用<code>do_pgfault</code>这个函数，这个函数直接完成了从获得虚拟页表项，到物理页到虚拟页的映射的过程，并且还执行了FIFO算法中入队的过程。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">ptep = get_pte(mm-&gt;pgdir, addr, <span class="number">1</span>);</span><br><span class="line"> <span class="keyword">if</span> (*ptep == <span class="number">0</span>) &#123;</span><br><span class="line">   <span class="comment">//(2) if the phy addr isn't exist, then alloc a page &amp; map the phy addr with</span></span><br><span class="line">   <span class="comment">// logical addr</span></span><br><span class="line">   <span class="comment">// struct Page *page = alloc_page();</span></span><br><span class="line">   pgdir_alloc_page(mm-&gt;pgdir, addr, perm);</span><br><span class="line"> &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">   <span class="comment">/*LAB3 EXERCISE 2: YOUR CODE</span></span><br><span class="line"><span class="comment">    * Now we think this pte is a  swap entry, we should load data from disk to</span></span><br><span class="line"><span class="comment">    * a page with phy addr, and map the phy addr with logical addr, trigger</span></span><br><span class="line"><span class="comment">    * swap manager to record the access situation of this page.</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    *  Some Useful MACROs and DEFINEs, you can use them in below</span></span><br><span class="line"><span class="comment">    * implementation. MACROs or Functions: swap_in(mm, addr, &amp;page) : alloc a</span></span><br><span class="line"><span class="comment">    * memory page, then according to the swap entry in PTE for addr, find the</span></span><br><span class="line"><span class="comment">    * addr of disk page, read the content of disk page into this memroy page</span></span><br><span class="line"><span class="comment">    *    page_insert ： build the map of phy addr of an Page with the linear</span></span><br><span class="line"><span class="comment">    * addr la swap_map_swappable ： set the page swappable</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">if</span> (swap_init_ok) &#123;</span><br><span class="line">     struct Page *page = <span class="literal">NULL</span>;</span><br><span class="line">     <span class="comment">//(1）According to the mm AND addr, try to load the content of right disk</span></span><br><span class="line">     <span class="comment">// page</span></span><br><span class="line">     <span class="comment">//    into the memory which page managed.</span></span><br><span class="line">     swap_in(mm, addr, &amp;page);</span><br><span class="line">     <span class="comment">//(2) According to the mm, addr AND page, setup the map of phy addr &lt;---&gt;</span></span><br><span class="line">     page_insert(mm-&gt;pgdir, page, addr, perm);</span><br><span class="line">     <span class="comment">// logical addr (3) make the page swappable.</span></span><br><span class="line">     swap_map_swappable(mm, addr, page, <span class="number">0</span>);</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">     cprintf(<span class="string">"no swap_init_ok but ptep is %x, failed\n"</span>, *ptep);</span><br><span class="line">     <span class="keyword">goto</span> failed;</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>注意要使用<code>pgdir_alloc_page</code>这个函数，这个函数在</p>
+<h3 id="问答"><a class="markdownIt-Anchor" href="#问答"></a> 问答</h3>
+<blockquote>
+<p>请描述页目录项（Page Directory Entry）和页表项（Page Table Entry）中组成部分对ucore实现页替换算法的潜在用处。</p>
+</blockquote>
+<p>可以使用页目录项（Page Directory Entry）和页表项（Page Table Entry）中的<strong>保留位</strong>来表示页替换算法所需要的信息，如时钟置换算法就需要保留位来表示该物理页是否被修改-访问。</p>
+<blockquote>
+<p>如果ucore的缺页服务例程在执行过程中访问内存，出现了页访问异常，请问硬件要做哪些事情？</p>
+</blockquote>
+<p>所以这个问题和Lab2的问题就是换了个条件？一个是在执行过程中，一个是在中断服务例程中，那还是没有区别，把<strong>Cr2</strong>里的内容压栈，然后把当前又缺的线性地址放入<strong>Cr2</strong>中，然后压栈<strong>error_code, CS, EIP</strong>乱七八糟的。</p>
+<h2 id="练习2补充完成基于fifo的页面替换算法需要编程"><a class="markdownIt-Anchor" href="#练习2补充完成基于fifo的页面替换算法需要编程"></a> 练习2：补充完成基于FIFO的页面替换算法（需要编程）</h2>
+<h3 id="内容-3"><a class="markdownIt-Anchor" href="#内容-3"></a> 内容</h3>
+<p>完成vmm.c中的do_pgfault函数，并且在实现FIFO算法的swap_fifo.c中完成map_swappable和swap_out_victim函数。</p>
+<h3 id="答案-3"><a class="markdownIt-Anchor" href="#答案-3"></a> 答案</h3>
+<p><code>map_swappable</code>意思是来一个页面入队，<code>swap_out_victim</code>选一个页面出队。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> _fifo_map_swappable(struct mm_struct *mm, <span class="keyword">uintptr_t</span> addr,</span><br><span class="line">                               struct Page *page, <span class="keyword">int</span> swap_in) &#123;</span><br><span class="line">  <span class="keyword">list_entry_t</span> *head = (<span class="keyword">list_entry_t</span> *)mm-&gt;sm_priv;</span><br><span class="line">  <span class="keyword">list_entry_t</span> *entry = &amp;(page-&gt;pra_page_link);</span><br><span class="line"></span><br><span class="line">  assert(entry != <span class="literal">NULL</span> &amp;&amp; head != <span class="literal">NULL</span>);</span><br><span class="line">  <span class="comment">// record the page access situlation</span></span><br><span class="line">  <span class="comment">/*LAB3 EXERCISE 2: YOUR CODE*/</span></span><br><span class="line">  <span class="comment">//(1)link the most recent arrival page at the back of the pra_list_head</span></span><br><span class="line">  <span class="comment">// qeueue.</span></span><br><span class="line">  page-&gt;pra_vaddr = addr;</span><br><span class="line">  list_add_before(head, entry);</span><br><span class="line">  cprintf(<span class="string">"called swapple\n"</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> _fifo_swap_out_victim(struct mm_struct *mm, struct Page **ptr_page,</span><br><span class="line">                                 <span class="keyword">int</span> in_tick) &#123;</span><br><span class="line">  <span class="keyword">list_entry_t</span> *head = (<span class="keyword">list_entry_t</span> *)mm-&gt;sm_priv;</span><br><span class="line">  assert(head != <span class="literal">NULL</span>);</span><br><span class="line">  assert(in_tick == <span class="number">0</span>);</span><br><span class="line">  <span class="comment">/* Select the victim */</span></span><br><span class="line">  <span class="comment">/*LAB3 EXERCISE 2: YOUR CODE*/</span></span><br><span class="line">  <span class="comment">//(1)  unlink the  earliest arrival page in front of pra_list_head qeueue</span></span><br><span class="line">  <span class="comment">//(2)  assign the value of *ptr_page to the addr of this page</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">res</span> = <span class="title">le2page</span>(<span class="title">head</span>-&gt;<span class="title">next</span>, <span class="title">pra_page_link</span>);</span></span><br><span class="line">  *ptr_page = res;</span><br><span class="line">  list_del(head-&gt;next);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>没有什么要点，唯一要注意的就是入队的时候把<code>page</code>结构里面的对应的虚拟地址填一下。</p>
+<h3 id="问答-2"><a class="markdownIt-Anchor" href="#问答-2"></a> 问答</h3>
+<blockquote>
+<p>如果要在ucore上实现&quot;extended clock页替换算法&quot;请给你的设计方案，现有的swap_manager框架是否足以支持在ucore中实现此算法？如果是，请给你的设计方案。如果不是，请给出你的新的扩展和基此扩展的设计方案。</p>
+</blockquote>
+<p>支持，<strong>extend clock页替换算法</strong>需要的信息都可以通过<code>get_pte</code>获得页表项里面保留位的信息获得。</p>
+<h2 id="challenge-1实现识别dirty-bit的-extended-clock页替换算法需要编程"><a class="markdownIt-Anchor" href="#challenge-1实现识别dirty-bit的-extended-clock页替换算法需要编程"></a> Challenge 1：实现识别dirty bit的 extended clock页替换算法（需要编程）</h2>
+<p>原本以为在程序访问某个虚地址的时候需要我们手动设置页表项的<code>access</code>位，后来发现原来硬件自己就能设置，于是代码就好写了很多，只要替换一下<code>swap_victim</code>函数就行了，主要就是循环链表，然后检查每个对应页表项的<code>access</code>位和<code>dirty</code>位，如果同时为0那么就是返回的结果。还需要一个<code>list_entry_t *cur</code>指向当前的位置，由于标志在查找替换页时应该从哪个页面开始。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> IS_VISITED(pte) ((pte)&amp;PTE_A)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> IS_WRITED(pte) ((pte)&amp;PTE_D)</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">swap_manager</span> <span class="title">swap_manager_fifo</span> = &#123;</span></span><br><span class="line">    .name = <span class="string">"fifo swap manager"</span>,</span><br><span class="line">    .init = &amp;_fifo_init,</span><br><span class="line">    .init_mm = &amp;_extended_clock_init_mm,</span><br><span class="line">    .tick_event = &amp;_fifo_tick_event,</span><br><span class="line">    .map_swappable = &amp;_extended_clock_map_swapple,</span><br><span class="line">    .set_unswappable = &amp;_fifo_set_unswappable,</span><br><span class="line">    .swap_out_victim = &amp;_extended_clock_swap_out_victim,</span><br><span class="line">    .check_swap = &amp;_fifo_check_swap,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">list_entry_t</span> *cur;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> _extended_clock_init_mm(struct mm_struct *mm) &#123;</span><br><span class="line">  list_init(&amp;pra_list_head);</span><br><span class="line">  mm-&gt;sm_priv = &amp;pra_list_head;</span><br><span class="line">  cur = &amp;pra_list_head;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> _extended_clock_map_swapple(struct mm_struct *mm, <span class="keyword">uintptr_t</span> addr,</span><br><span class="line">                                       struct Page *page, <span class="keyword">int</span> swap_in) &#123;</span><br><span class="line">  <span class="keyword">list_entry_t</span> *head = (<span class="keyword">list_entry_t</span> *)mm-&gt;sm_priv;</span><br><span class="line">  <span class="keyword">list_entry_t</span> *entry = &amp;(page-&gt;pra_page_link);</span><br><span class="line"></span><br><span class="line">  assert(entry != <span class="literal">NULL</span> &amp;&amp; head != <span class="literal">NULL</span>);</span><br><span class="line">  page-&gt;pra_vaddr = addr;</span><br><span class="line">  list_add_before(head, entry);</span><br><span class="line">  <span class="comment">// only change when first in or loop to find the victim</span></span><br><span class="line">  <span class="keyword">if</span> (cur == head) &#123;</span><br><span class="line">    cur = head-&gt;next;</span><br><span class="line">  &#125;</span><br><span class="line">  cprintf(<span class="string">"called swapple\n"</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> _extended_clock_swap_out_victim(struct mm_struct *mm,</span><br><span class="line">                                           struct Page **ptr_page,</span><br><span class="line">                                           <span class="keyword">int</span> in_tick) &#123;</span><br><span class="line">  <span class="keyword">list_entry_t</span> *head = (<span class="keyword">list_entry_t</span> *)mm-&gt;sm_priv;</span><br><span class="line">  assert(head != <span class="literal">NULL</span>);</span><br><span class="line">  assert(in_tick == <span class="number">0</span>);</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">res</span> = <span class="title">NULL</span>;</span></span><br><span class="line">  <span class="keyword">list_entry_t</span> *le = cur;</span><br><span class="line">  assert(head != le);</span><br><span class="line">  <span class="keyword">for</span> (;; le = le-&gt;next) &#123;</span><br><span class="line">    <span class="keyword">if</span> (le == head) <span class="keyword">continue</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">page</span> = <span class="title">le2page</span>(<span class="title">le</span>, <span class="title">pra_page_link</span>);</span></span><br><span class="line">    <span class="keyword">pte_t</span> *pted = get_pte(mm-&gt;pgdir, page-&gt;pra_vaddr, <span class="number">0</span>);</span><br><span class="line">    assert(pted != <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!(IS_VISITED(*pted)) &amp;&amp; !(IS_WRITED(*pted))) &#123;</span><br><span class="line">      *ptr_page = page;</span><br><span class="line">      <span class="keyword">if</span> (le-&gt;next == head) &#123;</span><br><span class="line">        cur = le-&gt;next-&gt;next;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cur = le-&gt;next;</span><br><span class="line">      &#125;</span><br><span class="line">      list_del(le);</span><br><span class="line">      <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (IS_WRITED(*pted)) &#123;</span><br><span class="line">      *pted &amp;= (~PTE_D);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (IS_VISITED(*pted)) &#123;</span><br><span class="line">      *pted &amp;= (~PTE_A);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然而使用全局变量而不是<code>mm_area</code>去存下一个起始页的不好的地方在于当引入用户进程后，<code>mm_area</code>结构不止一个，那么可能A进程的页指向的是B进程的页，但是uCore原本用于存储需要换出页的链表<code>pra_page_link</code>好像就是全局的，也就没所谓了。</p>
+<h3 id="问答-3"><a class="markdownIt-Anchor" href="#问答-3"></a> 问答</h3>
+<blockquote>
+<ol>
+<li>需要被换出的页的特征是什么？</li>
+</ol>
+</blockquote>
+<p><strong>访问位</strong>和<strong>修改位</strong>为0的页。</p>
+<blockquote>
+<ol start="2">
+<li>在ucore中如何判断具有这样特征的页？</li>
+</ol>
+</blockquote>
+<p>检查一下页表项的<strong>访问位</strong>和<strong>修改位</strong>是不是1。</p>
+<blockquote>
+<ol start="3">
+<li>何时进行换入和换出操作？</li>
+</ol>
+</blockquote>
+<p>在<code>alloc_page</code>返回<strong>NULL</strong>时进行换出，在缺页并且内容在磁盘中时进行换入。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="https://qinggniq.com">qinggniq</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="https://qinggniq.com/2019/10/10/uCore-lab3报告-虚拟内存管理/">https://qinggniq.com/2019/10/10/uCore-lab3报告-虚拟内存管理/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/os/">os</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/10/10/uCore-lab4报告-内核线程管理/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">uCore lab4报告 内核线程管理</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/10/10/uCore-lab2报告-物理内存管理（含challenge）/">
+        <span class="next-text nav-default">uCore lab2报告 物理内存管理（含challenge）</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:livewithblan@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/qinggniq" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">qinggniq</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'https://qinggniq.com/2019/10/10/uCore-lab3报告-虚拟内存管理/';
+        this.page.identifier = '2019/10/10/uCore-lab3报告-虚拟内存管理/';
+        this.page.title = 'uCore lab3报告 虚拟内存管理';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//qinggniq.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/lib/pjax/jquery.pjax.min.js"></script>
+  <script type="text/javascript" src="/lib/nprogress/nprogress.min.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>

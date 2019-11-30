@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang>
+  <head><meta name="generator" content="Hexo 3.8.0"><meta charset="UTF-8">
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="retools包下载问题"><meta name="keywords" content="运维, qinggniq's blog"><link rel="alternate" href="/atom.xml" title="qinggniq's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0">
+<link rel="canonical" href="https://qinggniq.com/2019/11/13/retools包下载问题/">
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css"><link rel="stylesheet" type="text/css" href="/lib/nprogress/nprogress.min.css">
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0">
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+
+    <title>retools包下载问题 - qinggniq's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="mobile-header-logo">
+    <a href="/." class="logo">qinggniq's blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">qinggniq's blog</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories">
+            分类
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">retools包下载问题
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-11-13
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-text"> 背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text"> 环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题"><span class="toc-text"> 问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#过程"><span class="toc-text"> 过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决方案"><span class="toc-text"> 解决方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结语"><span class="toc-text"> 结语</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
+<p><a href="https://github.com/pingcap/pd" target="_blank" rel="noopener">tidb-pd</a>中 <code>make test</code> 使用的是 <a href="https://github.com/twitchtv/retool" target="_blank" rel="noopener">retool</a> 进行代码管理。然而在自己的机器下无法进行。</p>
+<a id="more"></a>
+<h2 id="环境"><a class="markdownIt-Anchor" href="#环境"></a> 环境</h2>
+<ul>
+<li>Ubuntu 18.04 LST</li>
+<li>Go 13.3</li>
+<li>shadowsocks-libev</li>
+<li>privoxy</li>
+</ul>
+<h2 id="问题"><a class="markdownIt-Anchor" href="#问题"></a> 问题</h2>
+<ol>
+<li><code>retools</code> 不支持 <strong>go mod</strong>，所以需要代理或者手动装包；</li>
+<li>学艺不精，不知道<code>retools</code>需要的包具体有什么，路径格式是什么，版本是怎么设定的，所以希望在尽量做太多 <em>dirty work</em> 的情况下解决问题，选择代理；</li>
+</ol>
+<h2 id="过程"><a class="markdownIt-Anchor" href="#过程"></a> 过程</h2>
+<p><code>retools</code> 在下载第一个包的时候使用 <code>go get -d github.com/mgechev/revive</code> 获取 <code>revive</code> 这个包，正常直接用 <code>git clone</code> 是可以直接下载的，然而 <code>go get</code> 在下载的过程中会递归下载它引入的包 <code>golang.org/x/tools/go/gcexportdata</code> ，而这个包在被墙了。</p>
+<ol>
+<li>开启 <code>go mod</code>，上面说的包都可以下载，然而 <code>retool</code> 下载包（也就是 <code>go get</code>）存放的路径和 <code>go mod</code> 不一样，所以 <code>retool</code> 报错找不到路径；</li>
+<li>把上面两个包手动移动到 <code>retool</code> 报错提示的路径中去，然而 <code>retool</code> 在下载之后使用 <code>git checkout</code> 检查版本，手动移动的包无法通过检查，至于为什么？涉及到了知识盲区；</li>
+</ol>
+<blockquote>
+<p>既然 <code>github.com/mgechev/revive</code> 这个包可以直接下，而 <code>golang.org</code> 的包下不了，那么在这两者中间加一句开启 <code>go mod</code> 的语句不就行了？</p>
+</blockquote>
+<p>然而之前提到，<code>retool</code> 直接用的 <code>go get</code> 下载，没有给我中间更换包管理软件的空隙（当然，改<code>go get</code> 的源码当然是可以实现的），所以问题就变成了这样：</p>
+<ul>
+<li>用 <code>go mod</code> 不能执行；</li>
+<li>不用 <code>go mod</code> 下不下来包，并且无法通过版本检查。</li>
+</ul>
+<blockquote>
+<p>那么就弄个代理吧！</p>
+</blockquote>
+<p>开开心心上网 <code>ctrl-c, ctrl-v</code> 了一番：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash">git config --global http.proxy socks5://127.0.0.1:1080</span></span><br><span class="line"><span class="meta">$</span><span class="bash">git config --global https.proxy socks5://127.0.0.1:1080</span></span><br></pre></td></tr></table></figure>
+<p>然而这样做只能让 <code>git clone</code> 更快，并不能解决下载 <code>golang.org</code> 的问题，因为它不走 git 那条线。</p>
+<blockquote>
+<p>开个全局代理就好了</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"><span class="built_in">export</span> https_proxy=socks5://127.0.0.1:1080</span></span><br><span class="line"><span class="meta">$</span><span class="bash"><span class="built_in">export</span> http_proxy=socks5://127.0.0.1:1080</span></span><br></pre></td></tr></table></figure>
+<p>这样 <code>git clone</code> 都用不了，被检测到处于代理之下，怎么解决不知道，<code>glang.org</code> 包下不了，因为它走的是 <code>http/https</code> 的线，不走 <code>socks5</code> 协议。</p>
+<h2 id="解决方案"><a class="markdownIt-Anchor" href="#解决方案"></a> 解决方案</h2>
+<blockquote>
+<p>转 <code>socks5</code> 协议到 <code>http/https</code> 协议</p>
+</blockquote>
+<p>这样做的前提是你有一个<code>VPN/VPS</code>，并且有<code>shadowsocks</code>。</p>
+<p><em>下载 <code>privoxy</code></em></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash">sudo apt install privoxy</span></span><br></pre></td></tr></table></figure>
+<p><em>配置</em></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo vim /etc/privoxy/config</span></span><br></pre></td></tr></table></figure>
+<p>然后在里面搜索<code>listen-address</code>和<code>forward-socks5t</code>，取消注释或者新添一下两行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># /etc/privoxy/config</span><br><span class="line">forward-socks5t   /               127.0.0.1:1080 .</span><br><span class="line">listen-address  127.0.0.1:8118</span><br></pre></td></tr></table></figure>
+<p>ps:</p>
+<ul>
+<li><code>1080</code> 是 <code>shadowsocks</code> 监听的本地端口；</li>
+<li><code>forward-socks5t</code> 那行的最后一个“.”是有的。</li>
+</ul>
+<p>然后：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">export</span> https_proxy=http://127.0.0.1:8118</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">export</span> http_proxy==http://127.0.0.1:8118</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo service privoxy start</span></span><br></pre></td></tr></table></figure>
+<p>ps:</p>
+<ul>
+<li>要想配置长久生效，把两行 <code>export</code> 设置放到某个 <code>profile</code> 文件里就行，然后把 <code>service privoxy</code> 设置为开机启动。</li>
+</ul>
+<h2 id="结语"><a class="markdownIt-Anchor" href="#结语"></a> 结语</h2>
+<p>这样不仅 <code>retools</code> 的问题解决了，之后走 <code>http/https</code> 的软件下载问题都解决了。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="https://qinggniq.com">qinggniq</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="https://qinggniq.com/2019/11/13/retools包下载问题/">https://qinggniq.com/2019/11/13/retools包下载问题/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/运维/">运维</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/11/30/19-11月总结/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">19-11月总结</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2019/11/11/DDIA读书笔记——第八章-分布式系统的挑战/">
+        <span class="next-text nav-default">DDIA读书笔记——第八章-分布式系统的挑战</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:livewithblan@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/qinggniq" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2019<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">qinggniq</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'https://qinggniq.com/2019/11/13/retools包下载问题/';
+        this.page.identifier = '2019/11/13/retools包下载问题/';
+        this.page.title = 'retools包下载问题';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//qinggniq.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/lib/pjax/jquery.pjax.min.js"></script>
+  <script type="text/javascript" src="/lib/nprogress/nprogress.min.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>
