@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
-<meta name="description" content="19-11月总结"><meta name="keywords" content="life, qinggniq's blog"><link rel="alternate" href="/atom.xml" title="qinggniq's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0">
-<link rel="canonical" href="https://qinggniq.com/2019/11/30/19-11月总结/">
+<link rel="alternate" href="/atom.xml" title="qinggniq's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0">
+<link rel="canonical" href="https://qinggniq.com/tags/语法分析/">
 
 <link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css"><link rel="stylesheet" type="text/css" href="/lib/nprogress/nprogress.min.css">
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0">
@@ -38,7 +38,8 @@
 </script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 
-    <title>19-11月总结 - qinggniq's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    <title>语法分析 · qinggniq's blog
+  </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
   </head>
 
   <body><div id="mobile-navbar" class="mobile-navbar">
@@ -105,59 +106,20 @@
 
       <main id="main" class="main">
         <div class="content-wrapper">
-          <div id="content" class="content"><article class="post">
-    <header class="post-header">
-      <h1 class="post-title">19-11月总结
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-11-30
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>一晃眼就月底了，这个月过的真是试错的一个月啊，前期照例看论文、做笔记（翻译/抄书），倒也是照着预期的那样，听红楼梦、偶尔冥想、收回注意力，一切好好的。到第二周中间的时候应了yz的邀请一起去参加pingcap的PCP了。</p>
-<a id="more"></a>
-<p>说是比赛，我倒觉得像是给pingcap做外包呢，pingcap的人把一些issue根据难度分了等级（easy/medium/hard），参赛的人选取issue然后提pr，pr被merge后就会获得相应的分数。一共有三个项目可以选择——TIDB、TIKV、PD，我们考虑了一下，对数据库执行那块不太熟悉、rust没学过，唯一有点了解的是raft那些东西，所以开始的时候便选择了做PD。我们各自领了一个easy的issue，但是第一个issue过了两周才被合进去，这issue的难度确实是easy，然而和TIKV和TIDB实现对应函数的issue不同的是，pd的issue需要自己对pd项目的一部分的代码有相应的了解，并且需求并不是十分的确定，实现细节需要讨论确定，所以我们第一次的issue大部分时间就花在了和pingcap的人沟通上面和看代码上面了。第二周快结束的时候可总算是被合进去了，第三周的时候开始打算的是各自先快速解决一个easy的，然后开始做medium的，刚好我做的第一个issue可以照搬成另一个issue，于是快速把那个issue给做了。yz那边还在就实现方面和他们在讨论，然而在整了几天后便陷入了怀疑之中，思考参与这个东西的意义，因为这近三周做的工作实在是搬砖，时间都浪费在了沟通上面，在看代码的过程中有些不确定的东西需要花费很长的时间才能定位，而如果是实习的话这些问题本可以不必浪费的，给开源项目提pr确实是个有意义的事情，但是不应该占据生活的大部分时间，作为兴趣和业余才比较合适。并且关键的是我们平时也不用这个东西，如果作为学习代码的话，也有更好的实现去阅读（k8s、etcd等），这样在这全职干这个算什么事，pd这个东西恕我理解不了它的实现之美，设计之美。得出结论过后我们便停止了参赛。觉得还是改干嘛干嘛吧，做这个东西确实和搬砖没啥区别，学知识不如看书来的快，写代码不如自己写个雏形的收获大。。</p>
-<p>由于上次的目标一个也没达成，这次就不再立flag了。慢慢来吧，这个月太急躁了。</p>
-
+          <div id="content" class="content"><section id="archive" class="archive"><div class="archive-title tag">
+          <h2 class="archive-name">语法分析</h2>
+        </div>
+      <div class="archive-post">
+        <span class="archive-post-time">
+          2019-12-22
+          </span>
+        <span class="archive-post-title">
+          <a href="/2019/12/22/杀鸡用牛刀-LeetCode394的antlr解法/" class="archive-post-link">
+            杀鸡用牛刀--LeetCode394的antlr解法
+          </a>
+        </span>
       </div>
-      <div class="post-copyright">
-    <p class="copyright-item">
-      <span>原文作者: </span>
-      <a href="https://qinggniq.com">qinggniq</a>
-    </p>
-    <p class="copyright-item">
-      <span>原文链接: </span>
-      <a href="https://qinggniq.com/2019/11/30/19-11月总结/">https://qinggniq.com/2019/11/30/19-11月总结/</a>
-    </p>
-    <p class="copyright-item">
-      <span>许可协议: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
-    </p>
-  </div>
-      <footer class="post-footer">
-        <div class="post-tags">
-            <a href="/tags/life/">life</a>
-            </div>
-        
-        <nav class="post-nav"><a class="prev" href="/2019/12/22/杀鸡用牛刀-LeetCode394的antlr解法/">
-        <i class="iconfont icon-left"></i>
-        <span class="prev-text nav-default">杀鸡用牛刀--LeetCode394的antlr解法</span>
-        <span class="prev-text nav-mobile">上一篇</span>
-      </a>
-    <a class="next" href="/2019/11/13/retools包下载问题/">
-        <span class="next-text nav-default">retools包下载问题</span>
-        <span class="prev-text nav-mobile">下一篇</span>
-        <i class="iconfont icon-right"></i>
-      </a>
-    </nav></footer>
-    </article></div><div class="comments" id="comments"><div id="disqus_thread">
-        <noscript>
-          Please enable JavaScript to view the
-          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
-        </noscript>
-      </div>
-    </div></div>
+    </section><nav class="pagination"></nav></div></div>
       </main>
 
       <footer id="footer" class="footer"><div class="social-links"><a href="mailto:livewithblan@gmail.com" class="iconfont icon-email" title="email"></a>
@@ -186,9 +148,9 @@
       </div>
     </div><script type="text/javascript">
     var disqus_config = function () {
-        this.page.url = 'https://qinggniq.com/2019/11/30/19-11月总结/';
-        this.page.identifier = '2019/11/30/19-11月总结/';
-        this.page.title = '19-11月总结';
+        this.page.url = '';
+        this.page.identifier = 'tags/语法分析/index.html';
+        this.page.title = '';
     };
     (function() {
     var d = document, s = d.createElement('script');
