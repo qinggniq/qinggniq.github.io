@@ -128,225 +128,6 @@
         </div></article>
       <article class="post">
     <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/01/12/五重反转--从一个简单Go程序开始/"></a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-01-12
-        </span></div>
-    </header>
-
-    <div class="post-content"><h1 id="从一个简单的go程序开始"><a class="markdownIt-Anchor" href="#从一个简单的go程序开始"></a> 从一个简单的Go程序开始</h1>
-<blockquote>
-<p>There is no such thing as absolute truth.”<a href="https://evidenceandanswers.org/article/truth-absolute-or-relative/#note1" target="_blank" rel="noopener"><strong>1</strong></a></p>
-</blockquote>
-<h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
-<p>《程序设计语言》课的一个考试题。开始以为很简单，讨论实践过后发现并没有那么简单。</p>
-<h2 id="细节"><a class="markdownIt-Anchor" href="#细节"></a> 细节</h2>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>: <span class="keyword">package</span> main</span><br><span class="line"><span class="number">2</span>:</span><br><span class="line"><span class="number">3</span>: <span class="keyword">import</span> (</span><br><span class="line"><span class="number">4</span>: 	<span class="string">"time"</span></span><br><span class="line"><span class="number">5</span>: )</span><br><span class="line"><span class="number">6</span>:</span><br><span class="line"><span class="number">7</span>: <span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line"><span class="number">8</span>:	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line"><span class="number">9</span>:		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line"><span class="number">10</span>:			<span class="built_in">println</span>(i)</span><br><span class="line"><span class="number">11</span>:		&#125;()</span><br><span class="line"><span class="number">12</span>:	&#125;</span><br><span class="line"><span class="number">13</span>: time.Sleep(time.Minute)</span><br><span class="line"><span class="number">14</span>: &#125;</span><br></pre></td></tr></table></figure>
-<p>如上的Go程序，它会怎么输出？</p>
-<blockquote>
-<ol>
-<li>
-<p>顺序输出0-9</p>
-</li>
-<li>
-<p>乱序输出0-9</p>
-</li>
-<li>
-<p>全部输出10</p>
-</li>
-<li>
-<p>乱序输出0-10，输出10个</p>
-</li>
-<li>
-<p>有序输出0-10的数，其中0-10的数出现次数不确定</p>
-</li>
-</ol>
-</blockquote>
-<h3 id="level1-直觉"><a class="markdownIt-Anchor" href="#level1-直觉"></a> LEVEL1 ：直觉</h3>
-<p>如果你不知道<code>go func</code>是什么意思，那么顺序输出1-9似乎很符合直觉。</p>
-<h3 id="level2-直觉-多线程"><a class="markdownIt-Anchor" href="#level2-直觉-多线程"></a> LEVEL2 ：直觉 + 多线程</h3>
-<p>然而你刚好学过Go语言基础，知道<code>go</code>是Go语言的一个关键字，它开启一个<a href="https://tour.golang.org/concurrency/1" target="_blank" rel="noopener"><code>goroutine</code></a>（可以理解为它是一个轻量级的线程），等待调度器来执行它。那么答案2似乎成了合适的解答，因为不能确定哪个<code>goroutine</code>会被调度。</p>
-<h3 id="level3直觉-多线程-词法作用域"><a class="markdownIt-Anchor" href="#level3直觉-多线程-词法作用域"></a> LEVEl3：直觉 + 多线程 + 词法作用域</h3>
-<p>然而假如你写过Go/Python/Js等支持<a href="https://en.wikipedia.org/wiki/Closure_(computer_programming)" target="_blank" rel="noopener">闭包</a>的语言，并且被坑过，或者上过程序设计语言课，知道<a href>词法作用域</a>，那么你会知道这几个<code>func</code>里面的<code>i</code>都是一个<code>i</code>，闭包在执行的时候如果在自己的作用域里面找不到<code>i</code>的定义，那么就会往自己的作用域外面找，也就是<code>for</code>循环里面的作用域，然后把<code>for</code>循环里面的<code>i</code>作为自己的<code>i</code>。所以如果<code>for</code>循环结束之后开始调度那些goroutine的话，由于垃圾回收，<code>i</code>的值不会在<code>for</code>循环结束后销毁，函数里面的<code>i</code>都是10。（可以简单理解就是<code>func</code>里面的<code>i</code>不是值传递，而是指针）。</p>
-<p>那么选择3——全部输出10变的合情合理。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(i <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">			<span class="built_in">println</span>(i)</span><br><span class="line">		&#125;(i)</span><br><span class="line">	&#125;</span><br><span class="line">	time.Sleep(time.Minute)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上面的代码会乱序输出0-9，为什么呢，因为<code>i</code>作为参数传入函数会发生拷贝，这时候拷贝的就是实际的值了，所以每个<code>goroutine</code>里面的<code>i</code>都是不一样的，有着不同的存储的地址（不考虑编译器优化）。</p>
-<h3 id="level4-直觉-多线程-词法作用域-go-version-112"><a class="markdownIt-Anchor" href="#level4-直觉-多线程-词法作用域-go-version-112"></a> LEVEL4 直觉 + 多线程 + 词法作用域 + Go version &gt;= 1.12</h3>
-<p>Go在1.12接受了<a href="https://github.com/golang/go/issues/24543" target="_blank" rel="noopener">非协作抢占式调度</a>，所以并不能假定main goroutine的执行会不会被调度到自己开的goroutine上面去执行，那么如果在执行的时候获得了<code>i</code>的实际值并拷贝到<code>println</code>的栈里面，而此时并没有结束循环，所以<code>i</code>的值可能不是10，并且由于调度的最小抢占单位并不是<strong>函数</strong>，而是指令，所以我们不能确定实际把字符输出到到<code>stdout</code>的指令什么时候执行。所以乱序输出1-10似乎是问题的答案。</p>
-<h2 id="level5-直觉-多线程-词法作用域-go-version-112-runtimeprintlock"><a class="markdownIt-Anchor" href="#level5-直觉-多线程-词法作用域-go-version-112-runtimeprintlock"></a> level5 直觉 + 多线程 + 词法作用域 + Go version &gt;= 1.12 + runtime.printlock</h2>
-<p>但是如果看过这个程序的plan9汇编，就会发现在<code>func</code>的汇编里面<code>println(i)</code>对应的汇编代码是这样的。</p>
-<p>![image-20200112212540571](/Users/qinggniq/Library/Application Support/typora-user-images/image-20200112212540571.png)</p>
-<p>而<code>println</code>第一句调用的<code>runtime.printlock</code>的源码是这样的：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// The compiler emits calls to printlock and printunlock around</span></span><br><span class="line"><span class="comment">// the multiple calls that implement a single Go print or println</span></span><br><span class="line"><span class="comment">// statement. Some of the print helpers (printslice, for example)</span></span><br><span class="line"><span class="comment">// call print recursively. There is also the problem of a crash</span></span><br><span class="line"><span class="comment">// happening during the print routines and needing to acquire</span></span><br><span class="line"><span class="comment">// the print lock to print information about the crash.</span></span><br><span class="line"><span class="comment">// For both these reasons, let a thread acquire the printlock 'recursively'.</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">printlock</span><span class="params">()</span></span> &#123;</span><br><span class="line">	mp := getg().m</span><br><span class="line">	mp.locks++ <span class="comment">// do not reschedule between printlock++ and lock(&amp;debuglock).</span></span><br><span class="line">	mp.printlock++</span><br><span class="line">	<span class="keyword">if</span> mp.printlock == <span class="number">1</span> &#123;</span><br><span class="line">		lock(&amp;debuglock)</span><br><span class="line">	&#125;</span><br><span class="line">	mp.locks-- <span class="comment">// now we know debuglock is held and holding up mp.locks for us.</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//source https://golang.org/src/runtime/print.go</span></span><br></pre></td></tr></table></figure>
-<p>通过注释可知<code>printlock</code>保护了和<code>printunlock</code>之间的临界区，保证了线程安全，所以<code>println</code>是个线程安全的函数。</p>
-<p>那么假使一个goroutine A在<code>i == 5</code>的时候抢占了main goroutine执行，即使main goroutine被分配到另一CPU执行，并且被在<code>i &gt; 5</code>时创建的goroutine B打断，那么打断main goroutine的B的也不可能执行到<code>runtime.printlock</code>之后的代码，而当<code>i == 5</code>的时候调用的A执行完<code>runtime.printunlock</code>之后（注意虽然goroutine A是在<code>i==5</code>的时候被调用的，但是输出的时候不一定输出<code>5</code>，因为<code>runtime.printlock</code>只保护后面的临界区，而不保护<code>i</code>的变化，<code>i</code>有可能被运行在另一个CPU里面的main-goroutine修改）。</p>
-<p>这样的话，每个goroutine的输出语句被串行化了，而<code>i</code>一直是递增的，所以输出出去的<code>i</code>也是递增的。这也就是选择5的缘由。</p>
-<h3 id="level6-直觉-多线程-词法作用域-go-version-112-runtimeprintlock"><a class="markdownIt-Anchor" href="#level6-直觉-多线程-词法作用域-go-version-112-runtimeprintlock"></a> LEVEL6 直觉 + 多线程 + 词法作用域 + Go version &gt;= 1.12 + runtime.printlock + ？</h3>
-<p>可能等到我看了Go的调度器源码之后会有新的理解吧。</p>
-<h3 id="ps"><a class="markdownIt-Anchor" href="#ps"></a> ps</h3>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>: <span class="keyword">package</span> main</span><br><span class="line"><span class="number">2</span>: <span class="keyword">import</span> (</span><br><span class="line"><span class="number">3</span>: 	<span class="string">"time"</span></span><br><span class="line"><span class="number">4</span>:	<span class="string">"fmt"</span></span><br><span class="line"><span class="number">5</span>: )</span><br><span class="line"><span class="number">6</span>:</span><br><span class="line"><span class="number">7</span>: <span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line"><span class="number">8</span>:	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line"><span class="number">9</span>:		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line"><span class="number">10</span>:			fmt.Println(i)</span><br><span class="line"><span class="number">11</span>:		&#125;()</span><br><span class="line"><span class="number">12</span>:	&#125;</span><br><span class="line"><span class="number">13</span>: time.Sleep(time.Minute)</span><br><span class="line"><span class="number">14</span>: &#125;</span><br></pre></td></tr></table></figure>
-<p>上面这个代码的输出是什么呢？</p>
-
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/01/01/2019-draft/"></a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-01-01
-        </span></div>
-    </header>
-
-    <div class="post-content"><h1 id="2019-draft"><a class="markdownIt-Anchor" href="#2019-draft"></a> 2019 Draft</h1>
-<ul>
-<li>
-<p>1月 回家，和七班的人吃了几顿饭。</p>
-</li>
-<li>
-<p>2月继续实习，写文档，最后报告做的很差，但是也没反省。</p>
-</li>
-<li>
-<p>3月</p>
-<ul>
-<li>到实验室做毕设</li>
-<li>开始写日记</li>
-<li>认识到了X师兄，</li>
-<li>尝试去清华听haskell的课，又放弃。</li>
-<li>做大家的笔试题</li>
-<li>《寒蝉鸣泣之时》</li>
-<li>《瞬变》</li>
-<li>[回忆起来，由于我觉得X师兄对新人不友好所以才怕去问他毕设思路的。]</li>
-</ul>
-</li>
-<li>
-<p>4月毕设有了思路和进展</p>
-<ul>
-<li>《辉夜大小姐》</li>
-<li>回忆是重构而不是复原</li>
-<li>《春宵苦短，少女前进吧！》</li>
-<li>《Linux多线程服务端编程》</li>
-<li>自己无法全身心投入</li>
-<li>学车</li>
-<li>《深度探索C++对象模型》</li>
-<li>《盾之勇者成名记》</li>
-<li>《乒乓》</li>
-</ul>
-</li>
-<li>
-<p>5月</p>
-<ul>
-<li>开始使用双拼</li>
-<li>记录时间使用状况</li>
-<li>清华校赛</li>
-<li>《权游第八季》</li>
-<li>在看XRC玩炉石和yz面试的过程中写毕业论文</li>
-<li>《恶魔人cry baby》</li>
-<li>之前有印象觉得写的不好的书可以再看一次</li>
-</ul>
-</li>
-<li>
-<p>6月</p>
-<ul>
-<li>面试</li>
-<li>《Linux高性能服务器编程》</li>
-<li>毕业答辩</li>
-<li>回家</li>
-</ul>
-</li>
-<li>
-<p>7月</p>
-<ul>
-<li>《笑傲江湖》</li>
-<li>废了关键词在7月有很多</li>
-<li>《DDIA》</li>
-<li>去广州</li>
-<li>《比宇宙更遥远的地方》</li>
-<li>《简介架构之道》</li>
-<li>《Linux的设计与实现》</li>
-<li>《女子高中生的虚度日常》</li>
-</ul>
-</li>
-<li>
-<p>8月</p>
-<ul>
-<li>回家</li>
-<li>《淘宝技术这十年》</li>
-<li>《乔布斯传》</li>
-<li>《你的灯亮着吗》</li>
-</ul>
-</li>
-<li>
-<p>9月</p>
-<ul>
-<li>开学</li>
-<li>《glibc内存管理》</li>
-<li>《禅者的初心》</li>
-<li>《太傻天书》</li>
-<li>《高分少女》</li>
-<li>talent plan</li>
-<li>MIT6.828 ucore</li>
-<li>《全职猎人》</li>
-</ul>
-</li>
-<li>
-<p>19月</p>
-<ul>
-<li>开始不带手机回去</li>
-<li>ucore完成</li>
-<li>MIT6.824前两个lab</li>
-<li>过了科二</li>
-<li>《人生的智慧》
-<ul>
-<li>第一节讲“人是什么？”，强调健康、品行那些人固有的东西比那些外在的东西更重要，要让自己精神丰富起来。</li>
-<li>第二节讲“人拥有什么？”，说财富是必要的，但是过多也没什么好处。</li>
-<li>第三节讲“你在他人眼中是什么样的？”，过于在意别人的眼光会让自己不幸福。<br>
-感觉这些道理都很简单，容易理解，和自己想象中的哲学不太一样。</li>
-</ul>
-</li>
-<li>飞盘</li>
-</ul>
-</li>
-<li>
-<p>11月</p>
-<ul>
-<li>《脂砚斋评石头记》</li>
-<li>买了mbp</li>
-<li>看DDIA、6.824上面的论文</li>
-<li>做PCP</li>
-<li>《动物狂想曲》</li>
-<li>《春物》十三卷</li>
-<li>《etcd技术内幕》</li>
-</ul>
-</li>
-<li>
-<p>12月</p>
-<ul>
-<li>《春物》1，2季</li>
-<li>《x86汇编：从实模式道保护模式》</li>
-<li>《程序员的自我修养》</li>
-<li>游戏</li>
-<li>红楼梦</li>
-<li>《go语言圣经》</li>
-<li>《冰菓》</li>
-<li>《三月的狮子》</li>
-</ul>
-</li>
-</ul>
-<h1 id="开始吧"><a class="markdownIt-Anchor" href="#开始吧"></a> 开始吧</h1>
-<blockquote>
-<p>部分的认识到自己的缺陷性。自己是某种意义上的“孤儿”</p>
-<p><strong>人生不能像做菜，等到所有的料都准备好了才下锅。</strong></p>
-</blockquote>
-<p>18年如（死鱼【欠考虑】）一般。家的意义是什么呢，我还没考虑过，小时候父母对我只有好好读书，这样比较朴实笼统的期望，人生的理想、为人处事的原则、道德观念是父母、同学、老师耳濡目染传达给我的，在小学以前是没有收到过其他孩子的尊重的，回想起来那段时间是没有什么愉快的记忆。</p>
-
-        </div></article>
-      <article class="post">
-    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2019/12/22/杀鸡用牛刀-LeetCode394的antlr解法/">杀鸡用牛刀--LeetCode394的antlr解法</a>
         </h1>
 
@@ -491,6 +272,41 @@
           <div class="read-more">
             <a href="/2019/10/30/DDIA读书笔记——第六章-数据分区/" class="read-more-link">阅读更多</a>
           </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2019/10/25/DDIA读书笔记——第五章-数据复制/">DDIA读书笔记——第五章 数据复制</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-10-25
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
+<p><strong>多台机器上数据存储的挑战</strong></p>
+<ul>
+<li>扩展性：读写数量负载过大，超出当前机器的上限，需要水平扩展</li>
+<li>容错和高可用：单台机器出现故障，系统可以继续工作</li>
+<li>延迟考虑：CDN，选择附近的节点提供服务</li>
+</ul>
+          <div class="read-more">
+            <a href="/2019/10/25/DDIA读书笔记——第五章-数据复制/" class="read-more-link">阅读更多</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2019/10/18/uCore-lab8报告-文件系统设计与实现/">uCore lab8报告 文件系统设计与实现</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-10-18
+        </span></div>
+    </header>
+
+    <div class="post-content">
         </div></article>
       <nav class="pagination"><a class="next" href="/page/2/">
         <span class="next-text">下一页</span>
