@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 <link rel="alternate" href="/atom.xml" title="qinggniq's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0">
-<link rel="canonical" href="https://qinggniq.com/">
+<link rel="canonical" href="https://qinggniq.com/2020/01/12/五重反转--从一个简单Go程序开始/">
 
 <link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css"><link rel="stylesheet" type="text/css" href="/lib/nprogress/nprogress.min.css">
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0">
@@ -38,7 +38,7 @@
 </script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 
-    <title>qinggniq's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    <title> - qinggniq's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
   </head>
 
   <body><div id="mobile-navbar" class="mobile-navbar">
@@ -105,9 +105,9 @@
 
       <main id="main" class="main">
         <div class="content-wrapper">
-          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+          <div id="content" class="content"><article class="post">
     <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/01/12/五重反转——从一个简单的Go程序开始/">五重反转——从一个简单的Go程序开始</a>
+      <h1 class="post-title">
         </h1>
 
       <div class="post-meta">
@@ -116,28 +116,12 @@
         </span></div>
     </header>
 
-    <div class="post-content"><h1 id="从一个简单的go程序开始"><a class="markdownIt-Anchor" href="#从一个简单的go程序开始"></a> 从一个简单的Go程序开始</h1>
-<blockquote>
-<p>There is no such thing as absolute truth.”<a href="https://evidenceandanswers.org/article/truth-absolute-or-relative/#note1" target="_blank" rel="noopener"><strong>1</strong></a></p>
-</blockquote>
-<h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
-<p>《程序设计语言》课的一个考试题。开始以为很简单，讨论实践过后发现并没有那么简单。</p>
-          <div class="read-more">
-            <a href="/2020/01/12/五重反转——从一个简单的Go程序开始/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/01/12/五重反转--从一个简单Go程序开始/"></a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-01-12
-        </span></div>
-    </header>
-
-    <div class="post-content"><h1 id="从一个简单的go程序开始"><a class="markdownIt-Anchor" href="#从一个简单的go程序开始"></a> 从一个简单的Go程序开始</h1>
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#从一个简单的go程序开始"><span class="toc-text"> 从一个简单的Go程序开始</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-text"> 背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#细节"><span class="toc-text"> 细节</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#level1-直觉"><span class="toc-text"> LEVEL1 ：直觉</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#level2-直觉-多线程"><span class="toc-text"> LEVEL2 ：直觉 + 多线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#level3直觉-多线程-词法作用域"><span class="toc-text"> LEVEl3：直觉 + 多线程 + 词法作用域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#level4-直觉-多线程-词法作用域-go-version-112"><span class="toc-text"> LEVEL4 直觉 + 多线程 + 词法作用域 + Go version &gt;= 1.12</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level5-直觉-多线程-词法作用域-go-version-112-runtimeprintlock"><span class="toc-text"> level5 直觉 + 多线程 + 词法作用域 + Go version &gt;= 1.12 + runtime.printlock</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#level6-直觉-多线程-词法作用域-go-version-112-runtimeprintlock"><span class="toc-text"> LEVEL6 直觉 + 多线程 + 词法作用域 + Go version &gt;= 1.12 + runtime.printlock + ？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ps"><span class="toc-text"> ps</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h1 id="从一个简单的go程序开始"><a class="markdownIt-Anchor" href="#从一个简单的go程序开始"></a> 从一个简单的Go程序开始</h1>
 <blockquote>
 <p>There is no such thing as absolute truth.”<a href="https://evidenceandanswers.org/article/truth-absolute-or-relative/#note1" target="_blank" rel="noopener"><strong>1</strong></a></p>
 </blockquote>
@@ -190,313 +174,40 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>: <span class="keyword">package</span> main</span><br><span class="line"><span class="number">2</span>: <span class="keyword">import</span> (</span><br><span class="line"><span class="number">3</span>: 	<span class="string">"time"</span></span><br><span class="line"><span class="number">4</span>:	<span class="string">"fmt"</span></span><br><span class="line"><span class="number">5</span>: )</span><br><span class="line"><span class="number">6</span>:</span><br><span class="line"><span class="number">7</span>: <span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line"><span class="number">8</span>:	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line"><span class="number">9</span>:		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line"><span class="number">10</span>:			fmt.Println(i)</span><br><span class="line"><span class="number">11</span>:		&#125;()</span><br><span class="line"><span class="number">12</span>:	&#125;</span><br><span class="line"><span class="number">13</span>: time.Sleep(time.Minute)</span><br><span class="line"><span class="number">14</span>: &#125;</span><br></pre></td></tr></table></figure>
 <p>上面这个代码的输出是什么呢？</p>
 
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/01/01/2019-draft/"></a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-01-01
-        </span></div>
-    </header>
-
-    <div class="post-content"><h1 id="2019-draft"><a class="markdownIt-Anchor" href="#2019-draft"></a> 2019 Draft</h1>
-<ul>
-<li>
-<p>1月 回家，和七班的人吃了几顿饭。</p>
-</li>
-<li>
-<p>2月继续实习，写文档，最后报告做的很差，但是也没反省。</p>
-</li>
-<li>
-<p>3月</p>
-<ul>
-<li>到实验室做毕设</li>
-<li>开始写日记</li>
-<li>认识到了X师兄，</li>
-<li>尝试去清华听haskell的课，又放弃。</li>
-<li>做大家的笔试题</li>
-<li>《寒蝉鸣泣之时》</li>
-<li>《瞬变》</li>
-<li>[回忆起来，由于我觉得X师兄对新人不友好所以才怕去问他毕设思路的。]</li>
-</ul>
-</li>
-<li>
-<p>4月毕设有了思路和进展</p>
-<ul>
-<li>《辉夜大小姐》</li>
-<li>回忆是重构而不是复原</li>
-<li>《春宵苦短，少女前进吧！》</li>
-<li>《Linux多线程服务端编程》</li>
-<li>自己无法全身心投入</li>
-<li>学车</li>
-<li>《深度探索C++对象模型》</li>
-<li>《盾之勇者成名记》</li>
-<li>《乒乓》</li>
-</ul>
-</li>
-<li>
-<p>5月</p>
-<ul>
-<li>开始使用双拼</li>
-<li>记录时间使用状况</li>
-<li>清华校赛</li>
-<li>《权游第八季》</li>
-<li>在看XRC玩炉石和yz面试的过程中写毕业论文</li>
-<li>《恶魔人cry baby》</li>
-<li>之前有印象觉得写的不好的书可以再看一次</li>
-</ul>
-</li>
-<li>
-<p>6月</p>
-<ul>
-<li>面试</li>
-<li>《Linux高性能服务器编程》</li>
-<li>毕业答辩</li>
-<li>回家</li>
-</ul>
-</li>
-<li>
-<p>7月</p>
-<ul>
-<li>《笑傲江湖》</li>
-<li>废了关键词在7月有很多</li>
-<li>《DDIA》</li>
-<li>去广州</li>
-<li>《比宇宙更遥远的地方》</li>
-<li>《简介架构之道》</li>
-<li>《Linux的设计与实现》</li>
-<li>《女子高中生的虚度日常》</li>
-</ul>
-</li>
-<li>
-<p>8月</p>
-<ul>
-<li>回家</li>
-<li>《淘宝技术这十年》</li>
-<li>《乔布斯传》</li>
-<li>《你的灯亮着吗》</li>
-</ul>
-</li>
-<li>
-<p>9月</p>
-<ul>
-<li>开学</li>
-<li>《glibc内存管理》</li>
-<li>《禅者的初心》</li>
-<li>《太傻天书》</li>
-<li>《高分少女》</li>
-<li>talent plan</li>
-<li>MIT6.828 ucore</li>
-<li>《全职猎人》</li>
-</ul>
-</li>
-<li>
-<p>19月</p>
-<ul>
-<li>开始不带手机回去</li>
-<li>ucore完成</li>
-<li>MIT6.824前两个lab</li>
-<li>过了科二</li>
-<li>《人生的智慧》
-<ul>
-<li>第一节讲“人是什么？”，强调健康、品行那些人固有的东西比那些外在的东西更重要，要让自己精神丰富起来。</li>
-<li>第二节讲“人拥有什么？”，说财富是必要的，但是过多也没什么好处。</li>
-<li>第三节讲“你在他人眼中是什么样的？”，过于在意别人的眼光会让自己不幸福。<br>
-感觉这些道理都很简单，容易理解，和自己想象中的哲学不太一样。</li>
-</ul>
-</li>
-<li>飞盘</li>
-</ul>
-</li>
-<li>
-<p>11月</p>
-<ul>
-<li>《脂砚斋评石头记》</li>
-<li>买了mbp</li>
-<li>看DDIA、6.824上面的论文</li>
-<li>做PCP</li>
-<li>《动物狂想曲》</li>
-<li>《春物》十三卷</li>
-<li>《etcd技术内幕》</li>
-</ul>
-</li>
-<li>
-<p>12月</p>
-<ul>
-<li>《春物》1，2季</li>
-<li>《x86汇编：从实模式道保护模式》</li>
-<li>《程序员的自我修养》</li>
-<li>游戏</li>
-<li>红楼梦</li>
-<li>《go语言圣经》</li>
-<li>《冰菓》</li>
-<li>《三月的狮子》</li>
-</ul>
-</li>
-</ul>
-<h1 id="开始吧"><a class="markdownIt-Anchor" href="#开始吧"></a> 开始吧</h1>
-<blockquote>
-<p>部分的认识到自己的缺陷性。自己是某种意义上的“孤儿”</p>
-<p><strong>人生不能像做菜，等到所有的料都准备好了才下锅。</strong></p>
-</blockquote>
-<p>18年如（死鱼【欠考虑】）一般。家的意义是什么呢，我还没考虑过，小时候父母对我只有好好读书，这样比较朴实笼统的期望，人生的理想、为人处事的原则、道德观念是父母、同学、老师耳濡目染传达给我的，在小学以前是没有收到过其他孩子的尊重的，回想起来那段时间是没有什么愉快的记忆。</p>
-
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/12/22/杀鸡用牛刀-LeetCode394的antlr解法/">杀鸡用牛刀--LeetCode394的antlr解法</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-12-22
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="起因"><a class="markdownIt-Anchor" href="#起因"></a> 起因</h2>
-<ul>
-<li>刷题的时候刷到了这个题<a href="https://leetcode-cn.com/problems/decode-string/" target="_blank" rel="noopener">decode-string</a>，之前实习面试的时候写了个UB，于是顺理成章的挂了，印象深刻。</li>
-<li>程序语言原理课大作业用了用Antlr写语法分析器，还挺好用的。</li>
-</ul>
-<p>写个语法分析器来做这个题还挺有意思的。</p>
-          <div class="read-more">
-            <a href="/2019/12/22/杀鸡用牛刀-LeetCode394的antlr解法/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/11/30/19-11月总结/">19-11月总结</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-11-30
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>一晃眼就月底了，这个月过的真是试错的一个月啊，前期照例看论文、做笔记（翻译/抄书），倒也是照着预期的那样，听红楼梦、偶尔冥想、收回注意力，一切好好的。到第二周中间的时候应了yz的邀请一起去参加pingcap的PCP了。</p>
-          <div class="read-more">
-            <a href="/2019/11/30/19-11月总结/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/11/13/retools包下载问题/">retools包下载问题</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-11-13
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
-<p><a href="https://github.com/pingcap/pd" target="_blank" rel="noopener">tidb-pd</a>中 <code>make test</code> 使用的是 <a href="https://github.com/twitchtv/retool" target="_blank" rel="noopener">retool</a> 进行代码管理。然而在自己的机器下无法进行。</p>
-          <div class="read-more">
-            <a href="/2019/11/13/retools包下载问题/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/11/11/DDIA读书笔记——第八章-分布式系统的挑战/">DDIA读书笔记——第八章-分布式系统的挑战</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-11-11
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>开发者的核心任务是构建可靠的系统，即使系统面临着各种出错的可能，也需要完成预定的工作。</p>
-<p>本章对分布式系统可能出现的故障做了一个全面的、近乎悲观的总结，故障可能来自：</p>
-<ul>
-<li><strong>网络问题</strong></li>
-<li><strong>时钟和时序问题</strong></li>
-</ul>
-<p>并讨论这些问题的可控程度，接下来会探讨如何认清分布式系统的状态本质，并以此来评估发生的各种故障。</p>
-          <div class="read-more">
-            <a href="/2019/11/11/DDIA读书笔记——第八章-分布式系统的挑战/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/11/05/DDIA读书笔记——第七章-事务/">DDIA读书笔记——第七章-事务</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-11-05
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>在一个苛刻的数据存储环境中，可能会出现很多出错的情况。</p>
-<ul>
-<li>数据库软件失效；</li>
-<li>应用程序随时崩溃；</li>
-<li>应用和数据库节点通信失效、数据库之间的通信失效</li>
-<li>多个客户端同时写入，导致数据覆盖；</li>
-<li>客户端可能读到无意义的、部分更新的数据；</li>
-<li>客户端之前由于边界条件竞争引入的各种奇怪问题。</li>
-</ul>
-          <div class="read-more">
-            <a href="/2019/11/05/DDIA读书笔记——第七章-事务/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/11/02/19-10月结/">19-10月结</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-11-02
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="学习"><a class="markdownIt-Anchor" href="#学习"></a> <strong>学习</strong></h2>
-<ul>
-<li>上半月完成了uCore操作系统的实验课程，以及相应的实验报告；</li>
-<li>下半月完成了MIT6.824的前两个lab；</li>
-<li>《重构》前两章；</li>
-<li>八个题目的TestCaseGenerator；</li>
-<li>20+LeetCode题目；</li>
-<li>Makefile的基础写法；</li>
-<li>DDIA的两个章节，数据复制和数据分区，以及相应笔记；</li>
-<li>阅读了Raft、GFS、Spinnaker、FT-VitrualMachine论文；</li>
-</ul>
-          <div class="read-more">
-            <a href="/2019/11/02/19-10月结/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/10/30/DDIA读书笔记——第六章-数据分区/">DDIA读书笔记——第六章 数据分区</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-10-30
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
-<p>数据复制基本只能解决容错备份问题，然而对于海量数据集或非常高的查询压力，复制技术不能解决问题，我们还需要将数据分区。</p>
-<blockquote>
-<p>分区通常是这样定义的，即一条数据（或者每条记录，每行或每个文档）只属于某个特定分区。</p>
-</blockquote>
-<p>数据分区将文档的不同部分放到不同的机器上，这样请求负载也可以分配到更多的处理器上，在单个分区进行查询时，每个节点对自己的分区可以进行独立的查询操作，所以添加更多的节点可以提高吞吐量。</p>
-          <div class="read-more">
-            <a href="/2019/10/30/DDIA读书笔记——第六章-数据分区/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <nav class="pagination"><a class="next" href="/page/2/">
-        <span class="next-text">下一页</span>
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="https://qinggniq.com">qinggniq</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="https://qinggniq.com/2020/01/12/五重反转--从一个简单Go程序开始/">https://qinggniq.com/2020/01/12/五重反转--从一个简单Go程序开始/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2020/01/12/五重反转——从一个简单的Go程序开始/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">五重反转——从一个简单的Go程序开始</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2020/01/01/2019-draft/">
+        <span class="next-text nav-default"></span>
+        <span class="prev-text nav-mobile">下一篇</span>
         <i class="iconfont icon-right"></i>
       </a>
-    </nav></section></div></div>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
       </main>
 
       <footer id="footer" class="footer"><div class="social-links"><a href="mailto:livewithblan@gmail.com" class="iconfont icon-email" title="email"></a>
@@ -523,7 +234,21 @@
       <div class="back-to-top" id="back-to-top">
         <i class="iconfont icon-up"></i>
       </div>
-    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'https://qinggniq.com/2020/01/12/五重反转--从一个简单Go程序开始/';
+        this.page.identifier = '2020/01/12/五重反转--从一个简单Go程序开始/';
+        this.page.title = '';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//qinggniq.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
   <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
   <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
   <script type="text/javascript" src="/lib/pjax/jquery.pjax.min.js"></script>
