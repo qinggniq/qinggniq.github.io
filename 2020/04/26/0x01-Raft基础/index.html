@@ -125,13 +125,13 @@
 <p>[toc]</p>
 <h2 id="共识场景"><a class="markdownIt-Anchor" href="#共识场景"></a> 共识场景</h2>
 <h3 id="单机条件下的一致性问题1"><a class="markdownIt-Anchor" href="#单机条件下的一致性问题1"></a> 单机条件下的一致性问题[^1]</h3>
-<p><img src="/2020/04/26/0x01-Raft基础/./etcd/image-20200426095900060.png" alt="image-20200426095900060"></p>
+<p><img src="/2020/04/26/0x01-Raft基础/./0x01-Raft%E5%9F%BA%E7%A1%80/image-20200426095900060.png" alt="image-20200426095900060"></p>
 <p>如上图，一个客户端向一个节点发送更新读取请求，如果服务器是<strong>单线程</strong>处理请求，那么单机环境下的强一致性很好解决，每个用户总是能读取到<em>请求到达时的最新的数据​</em>。</p>
 <a id="more"></a>
 <h3 id="多机下的一致性问题"><a class="markdownIt-Anchor" href="#多机下的一致性问题"></a> 多机下的一致性问题</h3>
 <p>而在单机服务的致命弱点在于无法提供<strong>可用性</strong>，如果节点挂掉，那么服务就不可用，所以一般情况下一个服务（比如数据库）都会加上一个从服务器，在主服务器挂掉的时候提升为主节点继续提供服务。</p>
-<p><img src="/2020/04/26/0x01-Raft基础/./etcd/image-20200426095915168.png" alt="image-20200426095915168">上图是一个典型的主-从服务架构，客户端向主节点发出请求，主节点同步的复制写请求到从节点上，主节点<strong>收到从节点写入成功的响应后</strong>再响应客户端写入成功。一切看似很美好，然而主从节点网络发生中断的时候就必须面临<strong>可用性</strong>和<strong>一致性</strong>的抉择了。</p>
-<p><img src="/2020/04/26/0x01-Raft基础/./etcd/image-20200426095934178.png" alt="image-20200426095934178"></p>
+<p><img src="/2020/04/26/0x01-Raft基础/./0x01-Raft%E5%9F%BA%E7%A1%80/image-20200426095915168.png" alt="image-20200426095915168">上图是一个典型的主-从服务架构，客户端向主节点发出请求，主节点同步的复制写请求到从节点上，主节点<strong>收到从节点写入成功的响应后</strong>再响应客户端写入成功。一切看似很美好，然而主从节点网络发生中断的时候就必须面临<strong>可用性</strong>和<strong>一致性</strong>的抉择了。</p>
+<p><img src="/2020/04/26/0x01-Raft基础/./0x01-Raft%E5%9F%BA%E7%A1%80/image-20200426095934178.png" alt="image-20200426095934178"></p>
 <p>如上图，如果主节点和从节点的网络断开，此时客户端向主节点发出写请求，那么根据主节点的行为可以分为两种情况：</p>
 <ol>
 <li><em>主节点返回写入成功</em>。这样提供了<strong>可用性</strong>，但由于网络断开，所以从节点是没有收到同步请求的，那么客户端在收到写成功的响应后再执行读取的话，从节点返回的就不是最新的值，这样就失去了<strong>一致性</strong>。</li>
@@ -209,9 +209,9 @@
 </ul>
 <h3 id="选举"><a class="markdownIt-Anchor" href="#选举"></a> 选举</h3>
 <p><strong>Raft</strong>将节点分成了三种不同的角色，分别是<strong>Leader</strong>、<strong>Candidate</strong>和<strong>Follower</strong>，通常情况下一个集群里面只有一个<strong>Leader</strong>和其他的<strong>Follower</strong>，只有在<strong>选举</strong>的时候才会出现<strong>Candidate</strong>。</p>
-<p><img src="/2020/04/26/0x01-Raft基础/./etcd/image-20200426095958641.png" alt="image-20200426095958641"></p>
+<p><img src="/2020/04/26/0x01-Raft基础/./0x01-Raft%E5%9F%BA%E7%A1%80/image-20200426095958641.png" alt="image-20200426095958641"></p>
 <p><strong>Raft</strong>把时间通过一次次<strong>选举</strong>划分为不同的<code>Term</code>（任期），每次选举都会使<code>Term</code>增加，如果选举出<code>Term</code>，那么<strong>Leader</strong>将会在这个<code>Term</code>期间管理整个集群，而如果<strong>选举</strong>没有选出<strong>Leader</strong>那么这个<code>Term</code>也会因为没有<strong>Leader</strong>而结束。</p>
-<p><img src="/2020/04/26/0x01-Raft基础/./etcd/image-20200426100031058.png" alt="image-20200426100031058">下面我们以三个不同状态的节点的伪代码来解释状态转移过程（在下面的伪代码中，会忽略除了选举过程的其他处理）：</p>
+<p><img src="/2020/04/26/0x01-Raft基础/./0x01-Raft%E5%9F%BA%E7%A1%80/image-20200426100031058.png" alt="image-20200426100031058">下面我们以三个不同状态的节点的伪代码来解释状态转移过程（在下面的伪代码中，会忽略除了选举过程的其他处理）：</p>
 <h4 id="follower处理流程"><a class="markdownIt-Anchor" href="#follower处理流程"></a> Follower处理流程</h4>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//state Follower</span></span><br><span class="line">开启一个随机定时器</span><br><span class="line">重置投票状态</span><br><span class="line"><span class="keyword">for</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> 超时 &#123;</span><br><span class="line">    Term++</span><br><span class="line">    成为 Candidate</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> 收到其他节点的消息 &#123;</span><br><span class="line">    <span class="keyword">if</span> Term更大 &#123;</span><br><span class="line">      更新Term</span><br><span class="line">      清除投票状态</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> 是Candidate的“请求投票”的消息 &#123;</span><br><span class="line">      <span class="keyword">if</span> 消息的term更小 &#123;</span><br><span class="line">        返回失败</span><br><span class="line">      &#125;</span><br><span class="line">      重置定时器</span><br><span class="line">      <span class="keyword">if</span> 已经投过票了并且不是对方 或者 对方的日志比自己旧 &#123;</span><br><span class="line">        返回拒绝</span><br><span class="line">      &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        返回同意</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>随机定时器的目的是使得在一个选举流程里面尽量不要出现多个节点同时竞选的情况出现（具体的超时原则将会在安全性中解释）。</p>
@@ -228,7 +228,7 @@
 <p>选出<strong>Leader</strong>之后，<strong>Leader</strong>需要负责处理客户端的消息、管理与其他节点的同步。</p>
 <h4 id="日志格式"><a class="markdownIt-Anchor" href="#日志格式"></a> 日志格式</h4>
 <p>在不稳定的网络环境中，消息乱序，重发[^5]是很常见的事情，如果使用普通日志格式（无其他信息的命令序列），那么从节点无法保证接收到的从<strong>Leader</strong>发过来的日志和<strong>Leader</strong>本身存储的日志顺序是否一致，所以需要在日志中添加一些额外的信息。</p>
-<p><img src="/2020/04/26/0x01-Raft基础/./etcd/image-20200421160242186.png" alt="image-20200421160242186"></p>
+<p><img src="/2020/04/26/0x01-Raft基础/./0x01-Raft%E5%9F%BA%E7%A1%80/image-20200421160242186.png" alt="image-20200421160242186"></p>
 <p>如上图，<strong>Raft</strong>的日志中添加了<code>Term</code>和<code>LogIndex</code>两个信息， <code>Term</code>用来标识这条日志产生在哪个任期，由于一个任期最多只有一个<strong>Leader</strong>，所以不同<code>Term</code>的日志代表着不同时期的<strong>Leader</strong>产生的日志，<code>Term</code>越大，这条日志的越新；<code>LogIndex</code> 用来标识日志的顺序，根据<em>领导人只附加原则</em>可以知道相同<code>Term</code>的情况下<code>LogIndex</code>越大说明这个日志越新。</p>
 <blockquote>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="number">19</span>:  <span class="keyword">if</span> 已经投过票了并且不是对方 或者 对方的日志比自己旧 &#123;</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
@@ -237,13 +237,13 @@
 <p>在知道了日志格式之后，我们再看看<strong>Leader</strong>和<strong>Follower</strong>是如何处理日志复制的过程的。</p>
 <h4 id="leader"><a class="markdownIt-Anchor" href="#leader"></a> Leader</h4>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">初始化心跳定时器</span><br><span class="line">初始化其他节点的“复制进度”信息</span><br><span class="line"><span class="keyword">for</span> &#123;</span><br><span class="line">  把没有应用到状态机的日志应用，直到遇到没有提交的日志项</span><br><span class="line">  <span class="keyword">if</span> 心跳定时器超时 &#123;</span><br><span class="line">    给其他节点发送心跳</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> 收到客户端的消息 &#123;</span><br><span class="line">    把消息封装为日志格式</span><br><span class="line">    给其他节点发送“日志复制”消息</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> 收到其他节点消息 &#123;</span><br><span class="line">    <span class="keyword">if</span> 消息的Term更大 &#123;</span><br><span class="line">      更新 Term</span><br><span class="line">      成为 Follower							 </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> 是“复制响应” &#123;</span><br><span class="line">      <span class="keyword">if</span> 复制成功 并且 成功的节点数大于一半 并且 复制成功的日志Term为当前Term&#123;</span><br><span class="line">        提交这条日志项</span><br><span class="line">        更新这个节点的“复制进度”信息 <span class="comment">//nextIndex更新</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> 复制失败 &#123;</span><br><span class="line">        更新这个节点的“复制进度”信息	<span class="comment">//nextIndex--</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><img src="/2020/04/26/0x01-Raft基础/./etcd/image-20200423194132157.png" alt="image-20200423194132157"></p>
+<p><img src="/2020/04/26/0x01-Raft基础/./0x01-Raft%E5%9F%BA%E7%A1%80/image-20200423194132157.png" alt="image-20200423194132157"></p>
 <p>关于<code>复制进度</code>，如上图显示，由于不同节点的日志状态可能由于网络延迟等原因处于不同的状态，所以<strong>Leader</strong>需要维护各个节点日志的信息避免全量复制，只发送节点需要的日志。而在<strong>Raft</strong>算法中是通过为每个节点维护两个信息来实现<code>复制进度的</code>：</p>
 <ul>
 <li><code>matchIndex</code>：<strong>Leader</strong>已经复制给这个节点的Log日志结束索引号</li>
 <li><code>nextIndex</code>：<strong>Leader</strong>需要发送给这个节点的Log日志开始索引号</li>
 </ul>
-<p><img src="/2020/04/26/0x01-Raft基础/./etcd/image-20200421155706667.png" alt="image-20200421155706667"></p>
+<p><img src="/2020/04/26/0x01-Raft基础/./0x01-Raft%E5%9F%BA%E7%A1%80/image-20200421155706667.png" alt="image-20200421155706667"></p>
 <p>对于上图的<strong>Leader</strong>来说，下面的<strong>Follower应当的</strong>的<code>matchIndex</code>为5，<code>nextIndex</code>为6。（然而一开始的时候<strong>Leader</strong>可能不知道最合适的<code>nextIndex</code>是多少，所以需要根据<strong>Follower</strong>的响应来调整<code>matchIndex</code>和<code>nextIndex</code>）。</p>
 <h4 id="follower"><a class="markdownIt-Anchor" href="#follower"></a> Follower</h4>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">初始化随机选举定时器</span><br><span class="line"><span class="keyword">for</span> &#123;</span><br><span class="line">  把没有应用到状态机的日志应用，直到遇到没有提交的日志项</span><br><span class="line">  <span class="keyword">if</span> 选举定时器超时 &#123;</span><br><span class="line">    Term++</span><br><span class="line">    成为 Candidate 	<span class="comment">//进入选举流程</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> 收到Leader的“复制日志” &#123;</span><br><span class="line">    <span class="keyword">if</span> 消息Term更小 &#123;</span><br><span class="line">      返回复制失败</span><br><span class="line">    &#125;</span><br><span class="line">    根据Leader发送的commitedIndex提交位置和本身的commitedIndex更新commitedIndex <span class="comment">//①</span></span><br><span class="line">    <span class="keyword">if</span> 日志匹配  &#123; <span class="comment">//②</span></span><br><span class="line">      把最开始匹配的日志替换为Leader发过来的日志    <span class="comment">//③</span></span><br><span class="line">      返回复制成功</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">      返回复制失败</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -262,7 +262,7 @@
 <p>这个<em>日志匹配</em>的步骤也叫做<em>一致性检查</em>。</p>
 <p><strong>Follower日志覆盖</strong></p>
 <p><strong>③</strong>:在正常的日志复制过程中，我们可以想像<strong>Follower</strong>的日志一定会匹配，并且只会出现追加的情况，<strong>Leader</strong>和<strong>Follower</strong>不会出现不一致的情况（就是同一个<code>LogIndex</code>有着不同的<code>Term</code>值），但是出现了<strong>Leader</strong>崩溃之后因为不同节点的复制进度不一样，新的<strong>Leader</strong>新添加的日志可能就会和其他节点因为<strong>旧Leader同步但是没有提交的日志</strong>冲突，就会出现这样不一致的情况，那么如何处理这些与<strong>Leader</strong>冲突的日志是需要仔细考虑的事情。</p>
-<p><img src="/2020/04/26/0x01-Raft基础/./etcd/image-20200421174701088.png" alt="image-20200421174701088"></p>
+<p><img src="/2020/04/26/0x01-Raft基础/./0x01-Raft%E5%9F%BA%E7%A1%80/image-20200421174701088.png" alt="image-20200421174701088"></p>
 <p>上图忽略日志中的命令，方格中的数字代表日志的<code>Term</code>。最上面的一行是此时<strong>Leader</strong>的日志，而下面是<strong>Follower</strong>六个可能的的日志。</p>
 <ul>
 <li>(a)：<strong>Leader</strong>尚未把最新的日志发给这个<strong>Follower</strong></li>
@@ -327,7 +327,7 @@
 </ul>
 <p>我们其实就可以得出<em>领导人完全特性</em>了，因为<strong>Leader</strong>必然是从“拥有所有提交日志的节点”中选出来的，否则无法达成“至少比绝大多数节点的日志新”的事实。更精确的论证如下：</p>
 <p>通过反证法假设<em>领导人完全特性</em>不存在，推出矛盾，证明<em>领导人完全特性</em>存在：</p>
-<p><img src="/2020/04/26/0x01-Raft基础/./etcd/image-20200422131915742.png" alt="image-20200422131915742"></p>
+<p><img src="/2020/04/26/0x01-Raft基础/./0x01-Raft%E5%9F%BA%E7%A1%80/image-20200422131915742.png" alt="image-20200422131915742"></p>
 <p>如上图（任期U&gt;任期T），在任期T时候<strong>S1</strong>为<strong>Leader</strong>，给<strong>S2</strong>、<strong>S3</strong>、发送了“日志复制”消息并且提交成功（获得了<strong>S1,S2,S3</strong>的同意），之后在任期U的时候<strong>S5</strong>竞选<strong>Leader</strong>成功（获得了<strong>S3,S4,S5</strong>的同意）。</p>
 <p>假设：任期U的<strong>Leader S5</strong>是第一个没有任期T的<strong>Leader S1</strong>提交的日志的<strong>Leader</strong>，设那条日志为<code>Log A</code>。</p>
 <ul>
@@ -349,7 +349,7 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="number">16</span>: <span class="keyword">if</span> 复制成功 并且 成功的节点数大于一半 并且 复制成功的日志Term为当前Term&#123;</span><br><span class="line">&gt; <span class="number">17</span>:     提交这条日志项</span><br><span class="line">&gt; <span class="number">18</span>:     更新这个节点的“复制进度”信息 <span class="comment">//nextIndex更新</span></span><br><span class="line">&gt; <span class="number">19</span>: &#125;</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
 </blockquote>
 <p>我们看看如果<strong>Leader</strong>可以提交非当前<code>Term</code>的日志会发生什么：</p>
-<p><img src="/2020/04/26/0x01-Raft基础/./etcd/image-20200422144133190.png" alt="image-20200422144133190"></p>
+<p><img src="/2020/04/26/0x01-Raft基础/./0x01-Raft%E5%9F%BA%E7%A1%80/image-20200422144133190.png" alt="image-20200422144133190"></p>
 <p>上图是随着任期变化的各个节点的日志的状态变化，其中**(a), (b), ©<strong>是正常处理流程下的日志情况，而</strong>(d), (e)<strong>分别代表</strong>©<strong>在“允许</strong>Leader<strong>提交非当前任期日志”和“不允许</strong>Leader<strong>提交当非当前任期日志”的不同情况下形成的日志状态，其中红色阴影的日志代表所属的节点为该任期的</strong>Leader**。</p>
 <hr>
 <p>(a)：任期为2，<strong>S1</strong>是<strong>Leader</strong>，部分复制了索引位置 2 的日志项。</p>
@@ -380,7 +380,7 @@
 
 下面是Raft论文中的浓缩总结。
 
-![图 2 ](./etcd/raft-%E5%9B%BE2.png)
+![图 2 ](./0x01-Raft基础/raft-%E5%9B%BE2.png)
 
 ## Raft扩展
 
@@ -392,13 +392,13 @@
 
 为了让更改时期安全性得到保证，就必须不能让集群在一个任期选举出两个**Leader**，但是如果直接添加节点就可能会出现下面的情况。
 
-![image-20200422160630093](./etcd/image-20200422160630093.png)
+![image-20200422160630093](./0x01-Raft基础/image-20200422160630093.png)
 
 如上图，每个节点都会在某个时间点感知到成员的变化，在图中那个时间点就是颜色变化的分界线，绿色代表还是原来集群中只有三个节点的配置，红色代表现在集群中有五个节点的配置，那么如果在黑色方框的那个时间段开始了**选举**，旧配置的节点以为集群中只有三个节点于是**S1**获得了**S1, S2**的投票成为了**Leader**，于此同时，**S5**开始竞选，如果**S3**此时的日志很落后，那么**S3**就有可能投票给它，这样**S5**获得了**S3, S4, S5**的投票，成为了**Leader**，这个时候集群中出现了两个**Leader**，违背了*领导人唯一*原则。
 
 而**Raft**作者认为添加节点成员会出现安全性问题的根本原因在于一次性加入多个节点，所以**Raft**限制一次只能添加/删除一个节点到集群中，这样没有安全性问题并且多个节点的添加/删除也是可以由一个个的添加/删除去实现。
 
-![image-20200422182622451](./etcd/image-20200422182622451.png)
+![image-20200422182622451](./0x01-Raft基础/image-20200422182622451.png)
 
 上图是从节点数为奇数/偶数的集群中添加/删除一个节点的示意图，黄色区域里面的节点的配置都是旧配置，而红色节点的配置都是新配置，可以看到不管如何，在配置更改的时候不可能发生*两个配置下的“大多数”同时出现*的情况。证明
 
@@ -442,7 +442,7 @@
 
 配置更改会导致一些破坏集群**可用性**的事情发生。
 
-![image-20200422203244732](./etcd/image-20200422203244732.png)
+![image-20200422203244732](./0x01-Raft基础/image-20200422203244732.png)
 
 如上图：
 
@@ -457,7 +457,7 @@
 
 **Raft**将追赶过程划分为*round*（轮次），**Leader**在一个轮次内复制上一轮结束的日志之后的所有日志到**Learner**上，*round*为1的时候就是复制当前**Leader**上所有的日志。
 
-![image-20200422215416340](./etcd/image-20200422215416340.png)
+![image-20200422215416340](./0x01-Raft基础/image-20200422215416340.png)
 
 如上图，*round*2的时候**Leader**把*round 1*时收到的日志全部发给**Learner**，当**Learner**把当前*round*的所有日志都复制成功，*round*结束，开启下一个*round*。一般**Learner**会追赶固定数目的*round*（比如10轮），如果最后一次*round*的持续时间小于**选举超时时间**，那么这个**Learner**就可以加入到集群成为**Follower**了，而如果最后一轮*round*大于这个时间的话，**Leader**就会放弃这次“成员配置更改”。
 
@@ -481,7 +481,7 @@
 - 新、旧配置的服务器都可以成为领导人。
 - 达成一致（针对选举和提交）需要**同时在两种配置上**获得大多数的支持。
 
-![img](./etcd/reconfigurationconf.svg)
+![img](./0x01-Raft基础/reconfigurationconf.svg)
 
 如上图，集群配置更改的消息将会以一种特殊的日志项存储通信，上图展示了配置转化的过程。
 
@@ -503,7 +503,7 @@
 
 简单的方法类似于[Redis4.0](https://github.com/antirez/redis)中的持久化方案，定期做**CHECKPOINT**，**CHECKPOINT**之前的日志删除。
 
-![image-20200423162420560](./etcd/image-20200423162420560.png)
+![image-20200423162420560](./0x01-Raft基础/image-20200423162420560.png)
 
 在**Raft**中就会把**提交了**的日志持久化，然后记录这个快照的`LastLogIndex, LastLogTerm`。
 
