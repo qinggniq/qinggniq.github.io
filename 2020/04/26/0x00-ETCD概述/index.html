@@ -165,7 +165,6 @@
 <p>如上图是一个简单的数据库的模块图，数据库客户端向数据库服务端发起<strong>CRUD</strong>请求，数据库的网络模块负责与客户端的链接，存储模块进行具体的操作，然后将执行结果返回给网络模块，网络模块讲结果发送给客户端。</p>
 <p>而<strong>etcd</strong>通过实现<strong>raft共识算法</strong>实现了服务的数据存储服务的高可用，所以对于客户端（<strong>Client</strong>）发过来的<strong>每条请求（request）<strong>都需要使用</strong>raft共识算法</strong>让多个机器对这个请求达成共识，然后才能实际的存储到可持久化存储（<strong>Storage</strong>）中，当结点成员信息发生变化（新加入一个数据结点、原有的主节点失效）的时候需要使用<strong>raft共识算法</strong>对主节点达成共识、发送<strong>快照</strong>让新加入的结点的存储状态和主节点保持一致。</p>
 <p><img src="https://raw.githubusercontent.com/qinggniq/qinggniq.github.io//master/2020/04/26/0x00-ETCD%E6%A6%82%E8%BF%B0/image-20200426095538298.png" alt="image-20200426095538298"></p>
-<p><a href="https://raw.githubusercontent.com/qinggniq/qinggniq.github.io/master/2020/04/26/0x00-ETCD%E6%A6%82%E8%BF%B0/image-20200426095538298.png" target="_blank" rel="noopener">https://raw.githubusercontent.com/qinggniq/qinggniq.github.io/master/2020/04/26/0x00-ETCD%E6%A6%82%E8%BF%B0/image-20200426095538298.png</a></p>
 <p>所以在<strong>Http/Socket</strong>网络模块到<strong>Storage</strong>存储模块中间增加了一个<strong>Raft</strong>模块来完成上述的功能。然而<strong>Raft</strong>模块中不仅仅包含<strong>算法模块</strong>，<strong>结点间的通信</strong>，<strong>日志存储模块</strong>也是<strong>Raft</strong>模块中的内容。</p>
 <h2 id="pass"><a class="markdownIt-Anchor" href="#pass"></a> pass</h2>
 <p>为什么<strong>etcd</strong>叫<strong>etcd</strong>呢，项目中的<a href="https://raw.githubusercontent.com/etcd-io/etcd//master/Documentation/learning/why.md" target="_blank" rel="noopener">设计文档</a>告诉了答案：</p>
