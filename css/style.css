@@ -391,11 +391,22 @@ body {
   background: #0047AB;
   color: #fff; }
 
+::-webkit-scrollbar {
+  width: 8px;
+  height: 6px; }
+
+::-webkit-scrollbar-thumb {
+  background: #005cde;
+  border-radius: 5px; }
+
+::-webkit-scrollbar-track {
+  background: rgba(211, 211, 211, 0.4);
+  border-radius: 5px; }
+
 img {
   display: block;
   align: center;
-  border: 0;
-  box-shadow: 4px 4px 7px 2px rgba(0, 0, 0, 0.4); }
+  border: 0; }
 
 a {
   color: #34495e;
