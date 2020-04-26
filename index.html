@@ -119,7 +119,7 @@
     <div class="post-content"><h1 id="raft共识算法"><a class="markdownIt-Anchor" href="#raft共识算法"></a> Raft共识算法</h1>
 <p>[toc]</p>
 <h2 id="共识场景"><a class="markdownIt-Anchor" href="#共识场景"></a> 共识场景</h2>
-<h3 id="单机条件下的一致性问题1"><a class="markdownIt-Anchor" href="#单机条件下的一致性问题1"></a> 单机条件下的一致性问题[^1]</h3>
+<h3 id="单机条件下的一致性问题"><a class="markdownIt-Anchor" href="#单机条件下的一致性问题"></a> 单机条件下的一致性问题<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></h3>
 <p><img src="https://raw.githubusercontent.com/qinggniq/qinggniq.github.io/master/2020/04/26/0x01-Raft%E5%9F%BA%E7%A1%80/image-20200426095900060.png" alt="image-20200426095900060"></p>
 <p>如上图，一个客户端向一个节点发送更新读取请求，如果服务器是<strong>单线程</strong>处理请求，那么单机环境下的强一致性很好解决，每个用户总是能读取到<em>请求到达时的最新的数据​</em>。</p>
           <div class="read-more">
