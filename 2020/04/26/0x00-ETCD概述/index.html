@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
-<meta name="description" content="数据库无法得出结论"><link rel="alternate" href="/atom.xml" title="qinggniq's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0">
-<link rel="canonical" href="https://qinggniq.com/">
+<meta name="description" content="0x00-ETCD概述"><meta name="keywords" content="分布式, qinggniq's blog"><link rel="alternate" href="/atom.xml" title="qinggniq's blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0">
+<link rel="canonical" href="https://qinggniq.com/2020/04/26/0x00-ETCD概述/">
 
 <link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css"><link rel="stylesheet" type="text/css" href="/lib/nprogress/nprogress.min.css">
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0">
@@ -38,7 +38,7 @@
 </script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 
-    <title>qinggniq's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    <title>0x00-ETCD概述 - qinggniq's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
   </head>
 
   <body><div id="mobile-navbar" class="mobile-navbar">
@@ -105,9 +105,9 @@
 
       <main id="main" class="main">
         <div class="content-wrapper">
-          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+          <div id="content" class="content"><article class="post">
     <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/04/26/0x01-Raft基础/">0x01-Raft基础</a>
+      <h1 class="post-title">0x00-ETCD概述
         </h1>
 
       <div class="post-meta">
@@ -116,28 +116,12 @@
         </span></div>
     </header>
 
-    <div class="post-content"><h1 id="raft共识算法"><a class="markdownIt-Anchor" href="#raft共识算法"></a> Raft共识算法</h1>
-<p>[toc]</p>
-<h2 id="共识场景"><a class="markdownIt-Anchor" href="#共识场景"></a> 共识场景</h2>
-<h3 id="单机条件下的一致性问题1"><a class="markdownIt-Anchor" href="#单机条件下的一致性问题1"></a> 单机条件下的一致性问题[^1]</h3>
-<p><img src="/2020/04/26/0x01-Raft基础/./etcd/image-20200426095900060.png" alt="image-20200426095900060"></p>
-<p>如上图，一个客户端向一个节点发送更新读取请求，如果服务器是<strong>单线程</strong>处理请求，那么单机环境下的强一致性很好解决，每个用户总是能读取到<em>请求到达时的最新的数据​</em>。</p>
-          <div class="read-more">
-            <a href="/2020/04/26/0x01-Raft基础/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/04/26/0x00-ETCD概述/">0x00-ETCD概述</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-04-26
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-text"> 背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#声明"><span class="toc-text"> 声明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#etcd是什么"><span class="toc-text"> etcd是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#etcd架构"><span class="toc-text"> Etcd架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pass"><span class="toc-text"> pass</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
 <p>之前做MIT6.824看了Raft算法，lab2实现了Raft算法中<strong>选主</strong>和<strong>日志复制</strong>的基本功能，然而在看到<a href="https://github.com/etcd-io/etcd" target="_blank" rel="noopener">etcd</a>里面的实现之后顿时觉得自己写的就是一堆垃圾，所以决定好好研究一下<strong>etcd</strong>的代码。</p>
 <h2 id="声明"><a class="markdownIt-Anchor" href="#声明"></a> 声明</h2>
 <p>此系列的文章分析的是截止到<strong>2020-01-23</strong><a href="https://github.com/etcd-io/etcd/tree/c3497c84ed7860fe3accbcd648d7bebfe49de02b" target="_blank" rel="noopener">这个版本</a>的mastre分支的etcd代码。</p>
@@ -153,183 +137,78 @@
 </ul>
 <p>etcd is written in Go and <strong>uses the <a href="https://raft.github.io/" target="_blank" rel="noopener">Raft</a> consensus algorithm</strong> to manage a <strong>highly-available replicated log</strong>.</p>
 </blockquote>
-          <div class="read-more">
-            <a href="/2020/04/26/0x00-ETCD概述/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/01/12/五重反转——从一个简单的Go程序开始/">五重反转——从一个简单的Go程序开始</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-01-12
-        </span></div>
-    </header>
-
-    <div class="post-content"><h1 id="从一个简单的go程序开始"><a class="markdownIt-Anchor" href="#从一个简单的go程序开始"></a> 从一个简单的Go程序开始</h1>
+<a id="more"></a>
+<p>这是<strong>etcd</strong>在GitHub上面的说明，首先它是一个键值数据库，其次它使用**<a href="https://raft.github.io/" target="_blank" rel="noopener">Raft</a> 共识算法<strong>管理高可用的复制日志。所以</strong>etcd<strong>不仅仅是个键值数据库（如</strong>redis**），也不仅仅是个<strong>raft</strong>库（只实现Raft算法），而是兼有之，也就是高可用强一致性的分布式数据库。然而由于它的设计目的在于<strong>集群元信息（配置、成员信息等）管理和分布式协调工作（分布式锁、租约等）<strong>之类的数据量不大的场景，所以在存储方面</strong>etcd</strong>不适用于GB级别的数据存储。由于<strong>etcd</strong>要在分布式场景下使用，所以<strong>网络</strong>部分也是<strong>etcd</strong>需要实现的一部分。所以接下来的系列将会就：</p>
+<ul>
+<li>Raft算法模块
+<ul>
+<li>选主</li>
+<li>日志复制</li>
+</ul>
+</li>
+<li>网络模块
+<ul>
+<li>peer to peer 网络</li>
+<li>client to node 网络</li>
+</ul>
+</li>
+<li>存储模块
+<ul>
+<li>日志存储</li>
+<li>键值存储</li>
+</ul>
+</li>
+</ul>
+<p>这三个部分对<strong>etcd</strong>源码进行分析。</p>
+<h2 id="etcd架构"><a class="markdownIt-Anchor" href="#etcd架构"></a> Etcd架构</h2>
+<p><img src="/2020/04/26/0x00-ETCD概述/./etcd/image-20200426095512590.png" alt="image-20200426095512590"></p>
+<p>如上图是一个简单的数据库的模块图，数据库客户端向数据库服务端发起<strong>CRUD</strong>请求，数据库的网络模块负责与客户端的链接，存储模块进行具体的操作，然后将执行结果返回给网络模块，网络模块讲结果发送给客户端。</p>
+<p>而<strong>etcd</strong>通过实现<strong>raft共识算法</strong>实现了服务的数据存储服务的高可用，所以对于客户端（<strong>Client</strong>）发过来的<strong>每条请求（request）<strong>都需要使用</strong>raft共识算法</strong>让多个机器对这个请求达成共识，然后才能实际的存储到可持久化存储（<strong>Storage</strong>）中，当结点成员信息发生变化（新加入一个数据结点、原有的主节点失效）的时候需要使用<strong>raft共识算法</strong>对主节点达成共识、发送<strong>快照</strong>让新加入的结点的存储状态和主节点保持一致。</p>
+<p><img src="/2020/04/26/0x00-ETCD概述/./etcd/image-20200426095538298.png" alt="image-20200426095538298"></p>
+<p>所以在<strong>Http/Socket</strong>网络模块到<strong>Storage</strong>存储模块中间增加了一个<strong>Raft</strong>模块来完成上述的功能。然而<strong>Raft</strong>模块中不仅仅包含<strong>算法模块</strong>，<strong>结点间的通信</strong>，<strong>日志存储模块</strong>也是<strong>Raft</strong>模块中的内容。</p>
+<h2 id="pass"><a class="markdownIt-Anchor" href="#pass"></a> pass</h2>
+<p>为什么<strong>etcd</strong>叫<strong>etcd</strong>呢，项目中的<a href="https://github.com/etcd-io/etcd/blob/master/Documentation/learning/why.md" target="_blank" rel="noopener">设计文档</a>告诉了答案：</p>
 <blockquote>
-<p>There is no such thing as absolute truth.”<a href="https://evidenceandanswers.org/article/truth-absolute-or-relative/#note1" target="_blank" rel="noopener"><strong>1</strong></a></p>
+<p>The name “etcd” originated from two ideas, the unix “/etc” folder and &quot;d&quot;istributed systems. The “/etc” folder is a place to store configuration data for a single system whereas etcd stores configuration information for large scale distributed systems. Hence, a &quot;d&quot;istributed “/etc” is “etcd”.</p>
 </blockquote>
-<h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
-<p>《程序设计语言》课的一个考试题。开始以为很简单，讨论实践过后发现并没有那么简单。</p>
-          <div class="read-more">
-            <a href="/2020/01/12/五重反转——从一个简单的Go程序开始/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/12/22/杀鸡用牛刀-LeetCode394的antlr解法/">杀鸡用牛刀--LeetCode394的antlr解法</a>
-        </h1>
 
-      <div class="post-meta">
-        <span class="post-time">
-          2019-12-22
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="起因"><a class="markdownIt-Anchor" href="#起因"></a> 起因</h2>
-<ul>
-<li>刷题的时候刷到了这个题<a href="https://leetcode-cn.com/problems/decode-string/" target="_blank" rel="noopener">decode-string</a>，之前实习面试的时候写了个UB，于是顺理成章的挂了，印象深刻。</li>
-<li>程序语言原理课大作业用了用Antlr写语法分析器，还挺好用的。</li>
-</ul>
-<p>写个语法分析器来做这个题还挺有意思的。</p>
-          <div class="read-more">
-            <a href="/2019/12/22/杀鸡用牛刀-LeetCode394的antlr解法/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/11/30/19-11月总结/">19-11月总结</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-11-30
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>一晃眼就月底了，这个月过的真是试错的一个月啊，前期照例看论文、做笔记（翻译/抄书），倒也是照着预期的那样，听红楼梦、偶尔冥想、收回注意力，一切好好的。到第二周中间的时候应了yz的邀请一起去参加pingcap的PCP了。</p>
-          <div class="read-more">
-            <a href="/2019/11/30/19-11月总结/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/11/13/retools包下载问题/">retools包下载问题</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-11-13
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
-<p><a href="https://github.com/pingcap/pd" target="_blank" rel="noopener">tidb-pd</a>中 <code>make test</code> 使用的是 <a href="https://github.com/twitchtv/retool" target="_blank" rel="noopener">retool</a> 进行代码管理。然而在自己的机器下无法进行。</p>
-          <div class="read-more">
-            <a href="/2019/11/13/retools包下载问题/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/11/11/DDIA读书笔记——第八章-分布式系统的挑战/">DDIA读书笔记——第八章-分布式系统的挑战</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-11-11
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>开发者的核心任务是构建可靠的系统，即使系统面临着各种出错的可能，也需要完成预定的工作。</p>
-<p>本章对分布式系统可能出现的故障做了一个全面的、近乎悲观的总结，故障可能来自：</p>
-<ul>
-<li><strong>网络问题</strong></li>
-<li><strong>时钟和时序问题</strong></li>
-</ul>
-<p>并讨论这些问题的可控程度，接下来会探讨如何认清分布式系统的状态本质，并以此来评估发生的各种故障。</p>
-          <div class="read-more">
-            <a href="/2019/11/11/DDIA读书笔记——第八章-分布式系统的挑战/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/11/05/DDIA读书笔记——第七章-事务/">DDIA读书笔记——第七章-事务</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-11-05
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>在一个苛刻的数据存储环境中，可能会出现很多出错的情况。</p>
-<ul>
-<li>数据库软件失效；</li>
-<li>应用程序随时崩溃；</li>
-<li>应用和数据库节点通信失效、数据库之间的通信失效</li>
-<li>多个客户端同时写入，导致数据覆盖；</li>
-<li>客户端可能读到无意义的、部分更新的数据；</li>
-<li>客户端之前由于边界条件竞争引入的各种奇怪问题。</li>
-</ul>
-          <div class="read-more">
-            <a href="/2019/11/05/DDIA读书笔记——第七章-事务/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/11/02/19-10月结/">19-10月结</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-11-02
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="学习"><a class="markdownIt-Anchor" href="#学习"></a> <strong>学习</strong></h2>
-<ul>
-<li>上半月完成了uCore操作系统的实验课程，以及相应的实验报告；</li>
-<li>下半月完成了MIT6.824的前两个lab；</li>
-<li>《重构》前两章；</li>
-<li>八个题目的TestCaseGenerator；</li>
-<li>20+LeetCode题目；</li>
-<li>Makefile的基础写法；</li>
-<li>DDIA的两个章节，数据复制和数据分区，以及相应笔记；</li>
-<li>阅读了Raft、GFS、Spinnaker、FT-VitrualMachine论文；</li>
-</ul>
-          <div class="read-more">
-            <a href="/2019/11/02/19-10月结/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2019/10/30/DDIA读书笔记——第六章-数据分区/">DDIA读书笔记——第六章 数据分区</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2019-10-30
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
-<p>数据复制基本只能解决容错备份问题，然而对于海量数据集或非常高的查询压力，复制技术不能解决问题，我们还需要将数据分区。</p>
-<blockquote>
-<p>分区通常是这样定义的，即一条数据（或者每条记录，每行或每个文档）只属于某个特定分区。</p>
-</blockquote>
-<p>数据分区将文档的不同部分放到不同的机器上，这样请求负载也可以分配到更多的处理器上，在单个分区进行查询时，每个节点对自己的分区可以进行独立的查询操作，所以添加更多的节点可以提高吞吐量。</p>
-          <div class="read-more">
-            <a href="/2019/10/30/DDIA读书笔记——第六章-数据分区/" class="read-more-link">阅读更多</a>
-          </div>
-        </div></article>
-      <nav class="pagination"><a class="next" href="/page/2/">
-        <span class="next-text">下一页</span>
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="https://qinggniq.com">qinggniq</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="https://qinggniq.com/2020/04/26/0x00-ETCD概述/">https://qinggniq.com/2020/04/26/0x00-ETCD概述/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/分布式/">分布式</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2020/04/26/0x01-Raft基础/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">0x01-Raft基础</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2020/01/12/五重反转——从一个简单的Go程序开始/">
+        <span class="next-text nav-default">五重反转——从一个简单的Go程序开始</span>
+        <span class="prev-text nav-mobile">下一篇</span>
         <i class="iconfont icon-right"></i>
       </a>
-    </nav></section></div></div>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
       </main>
 
       <footer id="footer" class="footer"><div class="social-links"><a href="mailto:livewithblan@gmail.com" class="iconfont icon-email" title="email"></a>
@@ -356,7 +235,21 @@
       <div class="back-to-top" id="back-to-top">
         <i class="iconfont icon-up"></i>
       </div>
-    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'https://qinggniq.com/2020/04/26/0x00-ETCD概述/';
+        this.page.identifier = '2020/04/26/0x00-ETCD概述/';
+        this.page.title = '0x00-ETCD概述';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//qinggniq.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
   <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
   <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
   <script type="text/javascript" src="/lib/pjax/jquery.pjax.min.js"></script>
